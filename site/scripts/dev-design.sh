@@ -9,7 +9,8 @@ if [ ! -x "$NEXT_BIN" ]; then
   exit 1
 fi
 
-"$NEXT_BIN" dev --turbopack -p "$PORT" &
+# 127.0.0.1: 일부 샌드박스/CI에서 os.networkInterfaces() 실패를 피함
+"$NEXT_BIN" dev --turbopack -p "$PORT" --hostname 127.0.0.1 &
 pid=$!
 
 i=0
