@@ -1,7 +1,7 @@
 # Netlify Next.js — https://docs.netlify.com/build/frameworks/framework-setup-guides/next-js/overview/
 #
-# 저장소 루트를 Git에 연결합니다. 대시보드 Base directory 는 비워 두면
-# 아래 base = "site" 만 빌드 디렉터리로 쓰입니다(UI에 site 를 중복 넣지 마세요).
+# 저장소 루트를 Git에 연결합니다. Base / Publish 는 대시보드와 netlify.toml 이
+# 충돌하지 않게 하세요. Publish 를 site 로 두지 마세요(base 와 같음).
 #
 # SEO·OG: Environment variables 권장
 #   NEXT_PUBLIC_SITE_URL = 배포 URL(커스텀 도메인 포함)
@@ -10,6 +10,8 @@
 [build]
   base = "site"
   command = "npm run build"
+  # base 와 동일한 publish(예: UI에서 site)면 @netlify/plugin-nextjs 가 실패합니다.
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
