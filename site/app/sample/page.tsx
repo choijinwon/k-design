@@ -9,9 +9,10 @@ const GITHUB_SAMPLE =
   "https://github.com/choijinwon/k-design/blob/main/monetization/samples/harness-design-sample.md";
 
 export const metadata: Metadata = {
-  title: "Harness 설계 브리프 샘플 | K-Design Studio",
+  title: "Harness 설계 브리프 샘플",
   description:
     "Harness Engineering 오케스트레이션·에이전트 팀·Phase·TaskCreate 설계 브리프 예시. 복사해 프로젝트에 적용할 수 있습니다.",
+  alternates: { canonical: "/sample" },
 };
 
 export default function SamplePage() {

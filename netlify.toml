@@ -1,0 +1,18 @@
+# Netlify Next.js — https://docs.netlify.com/build/frameworks/framework-setup-guides/next-js/overview/
+#
+# 저장소 루트를 Git에 연결합니다. 대시보드 Base directory 는 비워 두면
+# 아래 base = "site" 만 빌드 디렉터리로 쓰입니다(UI에 site 를 중복 넣지 마세요).
+#
+# SEO·OG: Environment variables 권장
+#   NEXT_PUBLIC_SITE_URL = 배포 URL(커스텀 도메인 포함)
+#   NEXT_PUBLIC_CONTACT_EMAIL = 문의 수신 주소
+
+[build]
+  base = "site"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

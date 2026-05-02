@@ -1,11 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { SiteHeader } from "@/components/SiteHeader";
 
 const GITHUB = "https://github.com/choijinwon/k-design";
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "K-Design Studio | 바이브코딩 × Harness 에이전트 팀",
+    description:
+      "1인 개발자와 AI 에이전트가 에이전시급 속도로 MVP·디자인 시스템·엔터프라이즈 UI를 납품합니다.",
+  },
+};
+
 function getContactEmail(): string {
-  return process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "your-email@example.com";
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "abyys1004@naver.com";
 }
 
 export default function Home() {
@@ -26,8 +36,10 @@ export default function Home() {
             만듭니다.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--muted)]">
-            바이브코딩과 정해진 오케스트레이션으로 MVP·CBT·엔터프라이즈 UI를
-            납품합니다. 프리랜서보다 안정적으로, 대형 에이전시보다 빠르게.
+            바이브코딩과 정해진 오케스트레이션으로 MVP·디자인 시스템·엔터프라이즈 UI를 납품합니다.
+          </p>
+          <p className="mt-2 max-w-2xl text-lg leading-relaxed text-[var(--muted)]">
+            프리랜서보다 안정적으로, 대형 에이전시보다 빠르게.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
@@ -166,15 +178,16 @@ export default function Home() {
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               <article className="flex flex-col rounded-2xl border border-[var(--border)] bg-[var(--background)] p-6">
                 <span className="text-xs font-semibold uppercase tracking-wide text-[var(--accent)]">
-                  제품 · SaaS
+                  디자인 · 납품
                 </span>
-                <h3 className="mt-2 text-xl font-bold">CBT 자동생성 SaaS</h3>
+                <h3 className="mt-2 text-xl font-bold">디자인 시스템 · UI 키트</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--muted)]">
-                  교안 업로드 → 학습목표·시나리오·문항 초안 → SCORM · Electron
-                  등 패키지. 망분리·오프라인 요구를 전제로 설계합니다.
+                  브리프부터 토큰·컴포넌트·접근성 기준까지 한 번에 묶어 납품합니다.
+                  라이브 미리보기·문서화·Figma·코드 동기화를 전제로 망분리·자사
+                  가이드에도 맞춥니다.
                 </p>
                 <p className="mt-4 text-xs text-[var(--muted)]">
-                  문의 시 로드맵 · 파일럿 조건 협의
+                  문의 시 범위 · 파일럿 조건 협의
                 </p>
               </article>
               <article className="flex flex-col rounded-2xl border border-[var(--accent)]/30 bg-[var(--background)] p-6 ring-1 ring-[var(--accent)]/15">
@@ -197,7 +210,7 @@ export default function Home() {
                 <h3 className="mt-2 text-xl font-bold">강의 · 컨설팅</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--muted)]">
                   Claude / Cursor / Harness로 &quot;혼자 팀&quot; 만드는 방법,
-                  엔터프라이즈 CBT 제작 노하우. 커뮤니티·1:1 가능.
+                  엔터프라이즈 UI·디자인 시스템 운용 노하우. 커뮤니티·1:1 가능.
                 </p>
                 <p className="mt-4 text-xs text-[var(--muted)]">
                   일정 · 형태는 협의
@@ -257,7 +270,7 @@ export default function Home() {
             </div>
 
             <h3 className="mt-12 text-lg font-semibold text-[var(--accent)]">
-              CBT SaaS (구독 · 구축)
+              디자인 시스템 유지보수 (구독 · 구축)
             </h3>
             <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--border)]">
               <table className="w-full min-w-[28rem] text-left text-sm">
@@ -273,21 +286,21 @@ export default function Home() {
                     <td className="px-4 py-3 font-medium">Starter</td>
                     <td className="px-4 py-3">월 490,000</td>
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      콘텐츠 5개/월, 클라우드
+                      화면·토큰 리뷰 5건/월, 클라우드 스토리지
                     </td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-medium">Professional</td>
                     <td className="px-4 py-3">월 1,490,000</td>
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      무제한, 온프레미스 옵션
+                      무제한 비동기 리뷰, 온보딩 워크숍 옵션
                     </td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-medium">Enterprise</td>
                     <td className="px-4 py-3">연 12,000,000+</td>
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      전용 서버, 커스텀 AI
+                      전용 채널, 커스텀 에이전트 파이프라인
                     </td>
                   </tr>
                 </tbody>
@@ -306,11 +319,12 @@ export default function Home() {
           <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
             <h2 className="text-2xl font-bold sm:text-3xl">프로젝트 문의</h2>
             <p className="mx-auto mt-2 max-w-xl text-[var(--muted)]">
-              폼을 제출하면 메일 앱이 열립니다.{" "}
+              폼을 제출하면 메일 앱이 열립니다.
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-[var(--muted)]">
               <code className="rounded bg-[var(--background)] px-2 py-0.5 text-[var(--accent)]">
                 NEXT_PUBLIC_CONTACT_EMAIL
-              </code>{" "}
-              로 실제 연락처를 설정하세요.
+              </code>로 실제 연락처를 설정하세요.
             </p>
             <p className="mt-2 text-sm text-[var(--muted)]">
               현재 표시: <strong>{contactEmail}</strong>

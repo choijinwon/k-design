@@ -9,7 +9,9 @@
 - **Harness 설계 샘플 페이지**: `/sample` ([로컬](http://localhost:3000/sample))
 - **CBT 설계 POC** (교안 텍스트 → 목표·모듈 초안): `/poc` — `ANTHROPIC_API_KEY` 선택
 - 콘텐츠: [`site/content/harness-design-sample.md`](site/content/harness-design-sample.md) — `monetization/samples/` 와 내용 동기화
-- 프로덕션: [Vercel](https://vercel.com) 등에서 **Root Directory** 를 `site` 로 지정해 배포
+- 프로덕션
+  - [Vercel](https://vercel.com): **Root Directory** → `site`
+  - [Netlify](https://app.netlify.com/) (예: `k-design-studio`): 저장소 루트 연결 시 루트의 [`netlify.toml`](netlify.toml)이 `base = "site"`·`@netlify/plugin-nextjs`로 빌드합니다. 대시보드 **Environment variables**에 `NEXT_PUBLIC_SITE_URL`(배포 URL·커스텀 도메인), `NEXT_PUBLIC_CONTACT_EMAIL` 등을 넣으면 SEO·문의에 반영됩니다.
 
 ## 진입점
 

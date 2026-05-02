@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/poc", label: "모음" },
   { href: "/poc/design", label: "디자인" },
-  { href: "/poc/cbt", label: "교안 → CBT" },
   { href: "/poc/pricing", label: "가격 시뮬" },
   { href: "/poc/patterns", label: "패턴 매칭" },
   { href: "/poc/sprint", label: "2주 스프린트" },

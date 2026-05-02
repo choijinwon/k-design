@@ -2,6 +2,12 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useMemo, useState } from "react";
+import { DesignSystemLiveScreen } from "@/components/poc/DesignSystemLiveScreen";
+import {
+  SCENARIO_OPTIONS,
+  SCENARIO_SUMMARY_LABEL,
+  type Screen,
+} from "@/components/poc/scenario-screen";
 
 const STACKS = ["HTML", "React", "Vue", "Next.js", "Nuxt"] as const;
 
@@ -400,111 +406,6 @@ const OFFICIAL: { name: string; href: string }[] = [
   { name: "Nuxt UI", href: "https://ui.nuxt.com/" },
 ];
 
-type Screen =
-  | "mpa"
-  | "marketing"
-  | "dash"
-  | "data_viz"
-  | "forms_wizard"
-  | "docs_devportal"
-  | "mobile_pwa"
-  | "embed"
-  | "cbt_edu"
-  | "realtime_collab"
-  | "marketplace"
-  | "white_label"
-  | "a11y_public"
-  | "content_editorial"
-  | "material"
-  | "prototype_spike";
-
-const SCENARIO_OPTIONS: { group: string; id: Screen; label: string }[] = [
-  {
-    group: "채널 · 화면 형태",
-    id: "mpa",
-    label: "정적·MPA — 마크업 위주, 서버 템플릿",
-  },
-  {
-    group: "채널 · 화면 형태",
-    id: "marketing",
-    label: "마케팅·랜딩 — 전환, 히어로, 캠페인 페이지",
-  },
-  {
-    group: "채널 · 화면 형태",
-    id: "mobile_pwa",
-    label: "모바일·PWA — 터치·세이프에어리어·오프라인 고려",
-  },
-  {
-    group: "제품 · 밀도",
-    id: "dash",
-    label: "관리·백오피스 — 테이블·필터·폼 밀도 높음",
-  },
-  {
-    group: "제품 · 밀도",
-    id: "data_viz",
-    label: "데이터·모니터링 — 차트, 실시간 지표, 드릴다운",
-  },
-  {
-    group: "제품 · 밀도",
-    id: "forms_wizard",
-    label: "온보딩·위자드 — 단계 폼, 검증, 상태 보존",
-  },
-  {
-    group: "제품 · 밀도",
-    id: "content_editorial",
-    label: "콘텐츠·에디토리얼 — 롱폼, 카탈로그, 미디어 블록",
-  },
-  {
-    group: "개발자 · 지식",
-    id: "docs_devportal",
-    label: "문서·개발자 포털 — 검색, 코드블록, 버전 스위치",
-  },
-  {
-    group: "배포 · 임베드",
-    id: "embed",
-    label: "임베디드·Electron·웹뷰 — 번들·오프라인 제약",
-  },
-  {
-    group: "배포 · 임베드",
-    id: "prototype_spike",
-    label: "실험·스파이크 — 빠른 목업, 내구성보다 속도",
-  },
-  {
-    group: "도메인",
-    id: "cbt_edu",
-    label: "교육·CBT·LMS — 진도, 모듈, 접근성·오프라인",
-  },
-  {
-    group: "도메인",
-    id: "marketplace",
-    label: "마켓플레이스 — 멀티 벤더, 카트, 결제·정책 UI",
-  },
-  {
-    group: "도메인",
-    id: "realtime_collab",
-    label: "실시간 협업 — 동시 편집, 커서, 알림·채널",
-  },
-  {
-    group: "브랜딩 · 거버넌스",
-    id: "white_label",
-    label: "화이트라벨·멀티 테넌트 — 테마 스위치·토큰 주입",
-  },
-  {
-    group: "브랜딩 · 거버넌스",
-    id: "material",
-    label: "Material 톤 — M3 스펙·컴포넌트 규격 맞추기",
-  },
-  {
-    group: "브랜딩 · 거버넌스",
-    id: "a11y_public",
-    label: "접근성·공공 — 키보드, 대비, 고정 레이아웃 제약",
-  },
-];
-
-const SCENARIO_SUMMARY_LABEL: Record<Screen, string> = Object.fromEntries(
-  SCENARIO_OPTIONS.map((o) => [o.id, o.label.split(" — ")[0]?.trim() ?? o.label]),
-) as Record<Screen, string>;
-
 type CellTone = "good" | "ok" | "ref" | "bad";
 
 function cellTone(text: string): CellTone {
@@ -746,11 +647,60 @@ function wcagLabel(ratio: number, large: boolean): string {
 const SECTIONS = [
   { id: "samples", label: "샘플·레퍼런스" },
   { id: "tokens", label: "토큰" },
+  { id: "live-screen", label: "라이브 화면" },
   { id: "components", label: "컴포넌트" },
   { id: "matrix", label: "매트릭스" },
   { id: "scenario", label: "시나리오" },
   { id: "links", label: "문서·링크" },
 ] as const;
+
+function ScenarioGuideSelect({
+  screen,
+  setScreen,
+  selectId,
+  className = "",
+}: {
+  screen: Screen;
+  setScreen: (v: Screen) => void;
+  selectId: string;
+  className?: string;
+}) {
+  const groups = [
+    ...new Set(SCENARIO_OPTIONS.map((o) => o.group)),
+  ] as string[];
+
+  return (
+    <div className={className}>
+      <label className="block text-sm" htmlFor={selectId}>
+        <span className="mb-1 block font-medium text-[var(--foreground)]">
+          시나리오 가이드
+        </span>
+        <select
+          id={selectId}
+          value={screen}
+          onChange={(e) => setScreen(e.target.value as Screen)}
+          className="w-full max-w-2xl rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+        >
+          {groups.map((group) => (
+            <optgroup key={group} label={group}>
+              {SCENARIO_OPTIONS.filter((o) => o.group === group).map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
+      <p className="mt-1.5 text-xs text-[var(--muted)]">
+        현재:{" "}
+        <strong className="text-[var(--foreground)]">
+          {SCENARIO_SUMMARY_LABEL[screen]}
+        </strong>
+      </p>
+    </div>
+  );
+}
 
 export function DesignPlayground() {
   const [stackIdx, setStackIdx] = useState(3);
@@ -866,20 +816,34 @@ export function DesignPlayground() {
     ].join("\n");
   }, [activeDesignGuide, stack]);
 
-  const applyDesignGuideRecommendations = useCallback(() => {
+  const syncDesignGuideToPocState = useCallback(() => {
     const g = DESIGN_GUIDE_BY_ID[designGuideId];
     if (!g) return;
     if (g.suggestPresetId && PRESET_MAP[g.suggestPresetId]) {
       setPresetId(g.suggestPresetId);
     }
     if (g.suggestLibId) setLibId(g.suggestLibId);
+  }, [designGuideId]);
+
+  const applyDesignGuideRecommendations = useCallback(() => {
+    syncDesignGuideToPocState();
     requestAnimationFrame(() => {
       document.getElementById("tokens")?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     });
-  }, [designGuideId]);
+  }, [syncDesignGuideToPocState]);
+
+  const buildLiveScreenFromGuide = useCallback(() => {
+    syncDesignGuideToPocState();
+    requestAnimationFrame(() => {
+      document.getElementById("live-screen")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [syncDesignGuideToPocState]);
 
   const copyDesignGuideBrief = useCallback(async () => {
     try {
@@ -965,8 +929,8 @@ export function DesignPlayground() {
           </h3>
           <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
             디자인 시스템 가이드를 고르면 체크리스트와 권장 팔레트·UI 키가
-            정리됩니다. 적용 버튼으로 아래「토큰」「매트릭스」까지 한 번에 맞출 수
-            있습니다.
+            가이드로 권장 팔레트·UI 키를 맞춘 뒤, 아래에서 전체 화면(앱 셸) 미리보기를
+            만듭니다.
           </p>
           <label className="mt-4 block max-w-xl text-sm">
             <span className="mb-1.5 block font-medium text-[var(--foreground)]">
@@ -1006,6 +970,13 @@ export function DesignPlayground() {
             >
               공식 가이드 열기
             </a>
+            <button
+              type="button"
+              onClick={buildLiveScreenFromGuide}
+              className="rounded-lg border-2 border-[var(--accent)] bg-[var(--accent)]/10 px-3 py-2 font-semibold text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+            >
+              라이브 화면 만들기
+            </button>
             <button
               type="button"
               onClick={applyDesignGuideRecommendations}
@@ -1315,6 +1286,66 @@ export function DesignPlayground() {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="live-screen"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">선택으로 만든 라이브 화면</h2>
+        <p className="mt-1 max-w-3xl text-sm text-[var(--muted)] leading-relaxed">
+          위에서 디자인 가이드를 고른 뒤 <strong>라이브 화면 만들기</strong>를
+          누르면 권장 팔레트·UI 키가 반영됩니다.{" "}
+          <strong>시나리오</strong>는 아래 목록에서 바로 고를 수 있고, 같은
+          선택이 아래 <strong>시나리오 가이드</strong>의 스택별 설명과
+          연결됩니다. 팔레트만 바꿔도 토큰은 즉시 반영됩니다.
+        </p>
+        <ScenarioGuideSelect
+          screen={screen}
+          setScreen={setScreen}
+          selectId="poc-scenario-live"
+          className="mt-4"
+        />
+        <p className="mt-3 text-xs text-[var(--muted)]">
+          스택별 한 줄 설명은{" "}
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("scenario")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              })
+            }
+            className="text-[var(--accent)] underline-offset-2 hover:underline"
+          >
+            시나리오 가이드로 이동
+          </button>
+        </p>
+        <p className="mt-2 text-xs text-[var(--muted)]">
+          팔레트:{" "}
+          <strong className="text-[var(--accent)]">{currentPreset.label}</strong>
+          {" · "}디자인 가이드(참고):{" "}
+          <strong className="text-[var(--foreground)]">
+            {activeDesignGuide.name}
+          </strong>
+        </p>
+        <div className="mt-6">
+          <DesignSystemLiveScreen
+            tokens={currentPreset.tokens}
+            primaryOnAccent={currentPreset.primaryOnAccent}
+            guideId={designGuideId}
+            guideName={activeDesignGuide.name}
+            libLabel={
+              UI_LIBS.find((x) => x.id === libId)?.label ?? String(libId)
+            }
+            stackLabel={stack}
+            fontFamily={currentPreset.font}
+            scenario={screen}
+            scenarioLabel={
+              SCENARIO_OPTIONS.find((o) => o.id === screen)?.label ?? screen
+            }
+          />
         </div>
       </section>
 
@@ -2007,34 +2038,27 @@ export function DesignPlayground() {
       >
         <h2 className="text-lg font-semibold">시나리오 가이드</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          채널·제품 밀도·도메인·거버넌스 등{" "}
-          {SCENARIO_OPTIONS.length}가지 시나리오를 골라, 스택별로 한 줄씩
-          정리합니다. ui-frameworks.md 「선택 가이드」와 함께 보세요.
-        </p>
-        <label className="mt-6 block text-sm">
-          <span className="mb-1 block font-medium text-[var(--foreground)]">
-            시나리오
-          </span>
-          <select
-            value={screen}
-            onChange={(e) => setScreen(e.target.value as Screen)}
-            className="w-full max-w-2xl rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+          채널·제품 밀도·도메인·거버넌스 등 {SCENARIO_OPTIONS.length}가지
+          시나리오에 대해 스택별로 한 줄씩 정리합니다. 시나리오{" "}
+          <strong className="text-[var(--foreground)]">선택</strong>은 위{" "}
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("live-screen")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              })
+            }
+            className="font-medium text-[var(--accent)] underline-offset-2 hover:underline"
           >
-            {(
-              [...new Set(SCENARIO_OPTIONS.map((o) => o.group))] as string[]
-            ).map((group) => (
-              <optgroup key={group} label={group}>
-                {SCENARIO_OPTIONS.filter((o) => o.group === group).map(
-                  (o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.label}
-                    </option>
-                  ),
-                )}
-              </optgroup>
-            ))}
-          </select>
-        </label>
+            라이브 화면
+          </button>
+          에서 합니다. 아래는 현재 고른 항목(
+          <strong className="text-[var(--foreground)]">
+            {SCENARIO_SUMMARY_LABEL[screen]}
+          </strong>
+          ) 기준 설명입니다. ui-frameworks.md 「선택 가이드」와 함께 보세요.
+        </p>
         <p className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-4 text-sm leading-relaxed text-[var(--muted)]">
           현재 스택{" "}
           <strong className="text-[var(--foreground)]">{stack}</strong>: {blurb}

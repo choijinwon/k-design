@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import { PocShell } from "@/components/PocShell";
 
 export const metadata: Metadata = {
-  title: "실행 POC | K-Design Studio",
+  title: "실행 POC",
   description:
-    "디자인·UI 키 매트릭스, 교안 CBT 초안, 가격 시뮬, 패턴 매칭, MVP 스프린트를 브라우저에서 확인합니다.",
+    "디자인·UI 키 매트릭스, 가격 시뮬, 패턴 매칭, MVP 스프린트를 브라우저에서 확인합니다.",
+  alternates: { canonical: "/poc" },
 };
 
 const cards = [
@@ -14,12 +15,6 @@ const cards = [
     title: "디자인 · UI 키",
     description:
       "ui-frameworks.md 매트릭스, 9종 샘플 팔레트, 레퍼런스 허브(Mobbin·HIG 등), 토큰·컴포넌트 미리보기.",
-  },
-  {
-    href: "/poc/cbt",
-    title: "교안 → CBT 초안",
-    description:
-      "교육 스크립트를 붙여 넣으면 학습목표·모듈·퀴즈 초안을 생성합니다. Claude API 키가 없으면 데모 응답으로 동작합니다.",
   },
   {
     href: "/poc/pricing",
