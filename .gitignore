@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# next
+site/.next/
+site/out/
+
+# env
+site/.env
+site/.env.local
+site/.env.*.local
+
+# debug
+npm-debug.log*
+
+# ide
+.idea/
+.vscode/
+
+# os
+.DS_Store
