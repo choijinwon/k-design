@@ -34,28 +34,281 @@ const MATRIX: Record<(typeof UI_LIBS)[number]["id"], readonly string[]> = {
   ],
 };
 
-const STUDIO_TOKENS = {
-  "--background": "#070b12",
-  "--foreground": "#e8eaef",
-  "--muted": "#8b93a7",
-  "--card": "#0f1623",
-  "--border": "#1e2a3d",
-  "--accent": "#22d3ee",
-  "--accent-dim": "#0891b2",
-} as const;
+type PresetTokens = {
+  "--background": string;
+  "--foreground": string;
+  "--muted": string;
+  "--card": string;
+  "--border": string;
+  "--accent": string;
+  "--accent-dim": string;
+};
 
-const PAPER_TOKENS = {
-  "--background": "#f8fafc",
-  "--foreground": "#0f172a",
-  "--muted": "#64748b",
-  "--card": "#ffffff",
-  "--border": "#e2e8f0",
-  "--accent": "#0e7490",
-  "--accent-dim": "#155e75",
-} as const;
+type DesignPreset = {
+  id: string;
+  label: string;
+  tagline: string;
+  /** 영감·유사 레퍼런스 (브랜드명은 비공식 느낌으로만 안내) */
+  ref?: string;
+  refUrl?: string;
+  tokens: PresetTokens;
+  /** Primary 버튼 위 글자색 */
+  primaryOnAccent: string;
+  /** 미리보기 패널 폰트만 변경 */
+  font?: string;
+};
+
+const DESIGN_PRESETS: readonly DesignPreset[] = [
+  {
+    id: "studio",
+    label: "Studio",
+    tagline: "K-Design 기본 · 시안 다크",
+    ref: "이 사이트 기본값",
+    tokens: {
+      "--background": "#070b12",
+      "--foreground": "#e8eaef",
+      "--muted": "#8b93a7",
+      "--card": "#0f1623",
+      "--border": "#1e2a3d",
+      "--accent": "#22d3ee",
+      "--accent-dim": "#0891b2",
+    },
+    primaryOnAccent: "#041016",
+  },
+  {
+    id: "paper",
+    label: "Paper",
+    tagline: "SaaS·문서형 라이트",
+    ref: "일반 B2B 랜딩",
+    tokens: {
+      "--background": "#f8fafc",
+      "--foreground": "#0f172a",
+      "--muted": "#64748b",
+      "--card": "#ffffff",
+      "--border": "#e2e8f0",
+      "--accent": "#0e7490",
+      "--accent-dim": "#155e75",
+    },
+    primaryOnAccent: "#f8fafc",
+  },
+  {
+    id: "geist",
+    label: "Geist",
+    tagline: "바이올렛 · 미니멀 다크",
+    ref: "Vercel Geist",
+    refUrl: "https://vercel.com/geist",
+    tokens: {
+      "--background": "#000000",
+      "--foreground": "#fafafa",
+      "--muted": "#a3a3a3",
+      "--card": "#0a0a0a",
+      "--border": "#262626",
+      "--accent": "#8b5cf6",
+      "--accent-dim": "#7c3aed",
+    },
+    primaryOnAccent: "#fafafa",
+    font: "ui-sans-serif, system-ui, sans-serif",
+  },
+  {
+    id: "linear",
+    label: "Indigo",
+    tagline: "딥 그레이 · 인디고 포인트",
+    ref: "프로덕트 툴 톤 참고",
+    tokens: {
+      "--background": "#09090b",
+      "--foreground": "#f4f4f5",
+      "--muted": "#a1a1aa",
+      "--card": "#18181b",
+      "--border": "#27272a",
+      "--accent": "#5e6ad2",
+      "--accent-dim": "#4f46e5",
+    },
+    primaryOnAccent: "#fafafa",
+  },
+  {
+    id: "rose",
+    label: "Rose",
+    tagline: "로즈·웜 다크",
+    ref: "크리에이티브·브랜드",
+    tokens: {
+      "--background": "#1a1014",
+      "--foreground": "#fdf2f8",
+      "--muted": "#b58393",
+      "--card": "#2d1b22",
+      "--border": "#4c1d31",
+      "--accent": "#fb7185",
+      "--accent-dim": "#f43f5e",
+    },
+    primaryOnAccent: "#1f1317",
+  },
+  {
+    id: "forest",
+    label: "Forest",
+    tagline: "딥 그린 · 자연 톤",
+    ref: "웰니스·교육·ESG",
+    tokens: {
+      "--background": "#0c1410",
+      "--foreground": "#ecfdf5",
+      "--muted": "#6ee7b7",
+      "--card": "#13281e",
+      "--border": "#14532d",
+      "--accent": "#34d399",
+      "--accent-dim": "#059669",
+    },
+    primaryOnAccent: "#042f1a",
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    tagline: "앰버·코랄 · 에너지",
+    ref: "이벤트·프로모",
+    tokens: {
+      "--background": "#1c1410",
+      "--foreground": "#fff7ed",
+      "--muted": "#d6b196",
+      "--card": "#292018",
+      "--border": "#7c2d12",
+      "--accent": "#fb923c",
+      "--accent-dim": "#ea580c",
+    },
+    primaryOnAccent: "#1c1410",
+  },
+  {
+    id: "mono",
+    label: "Mono",
+    tagline: "흑백 · 에디토리얼",
+    ref: "포트폴리오·블로그",
+    tokens: {
+      "--background": "#0a0a0a",
+      "--foreground": "#fafafa",
+      "--muted": "#a3a3a3",
+      "--card": "#171717",
+      "--border": "#404040",
+      "--accent": "#fafafa",
+      "--accent-dim": "#e5e5e5",
+    },
+    primaryOnAccent: "#0a0a0a",
+  },
+  {
+    id: "nord",
+    label: "Nord",
+    tagline: "차가운 북유럽 팔레트",
+    ref: "Nord Theme",
+    refUrl: "https://www.nordtheme.com/",
+    tokens: {
+      "--background": "#2e3440",
+      "--foreground": "#eceff4",
+      "--muted": "#d8dee9",
+      "--card": "#3b4252",
+      "--border": "#4c566a",
+      "--accent": "#88c0d0",
+      "--accent-dim": "#5e81ac",
+    },
+    primaryOnAccent: "#2e3440",
+  },
+] as const;
+
+const PRESET_MAP: Record<string, DesignPreset> = Object.fromEntries(
+  DESIGN_PRESETS.map((p) => [p.id, p]),
+);
 
 const DOC_HREF =
   "https://github.com/choijinwon/k-design/blob/main/monetization/references/ui-frameworks.md";
+
+const REFERENCE_GROUPS: {
+  title: string;
+  items: { name: string; href: string; hint?: string }[];
+}[] = [
+  {
+    title: "디자인 시스템 · 가이드",
+    items: [
+      {
+        name: "Apple HIG",
+        href: "https://developer.apple.com/design/human-interface-guidelines/",
+      },
+      {
+        name: "Material Design 3",
+        href: "https://m3.material.io/",
+        hint: "스펙·토큰",
+      },
+      {
+        name: "Fluent 2",
+        href: "https://fluent2.microsoft.design/",
+      },
+      {
+        name: "Atlassian Design",
+        href: "https://atlassian.design/",
+      },
+      {
+        name: "Primer",
+        href: "https://primer.style/",
+      },
+      {
+        name: "Carbon (IBM)",
+        href: "https://carbondesignsystem.com/",
+      },
+      {
+        name: "Gov.uk Design",
+        href: "https://design-system.service.gov.uk/",
+      },
+    ],
+  },
+  {
+    title: "스크린 · 플로우 레퍼런스",
+    items: [
+      { name: "Mobbin", href: "https://mobbin.com/", hint: "앱 UI 스크린" },
+      {
+        name: "Pageflows",
+        href: "https://pageflows.com/",
+      },
+      {
+        name: "Landingfolio",
+        href: "https://www.landingfolio.com/",
+      },
+      {
+        name: "Land-book",
+        href: "https://land-book.com/",
+      },
+      {
+        name: "Dribbble",
+        href: "https://dribbble.com/",
+      },
+      {
+        name: "Behance",
+        href: "https://www.behance.net/",
+      },
+      {
+        name: "Awwwards",
+        href: "https://www.awwwards.com/",
+      },
+    ],
+  },
+  {
+    title: "색 · 타이포 · 레이아웃 도구",
+    items: [
+      { name: "Coolors", href: "https://coolors.co/", hint: "팔레트" },
+      {
+        name: "Happy Hues",
+        href: "https://www.happyhues.co/",
+        hint: "시맨틱 색 조합",
+      },
+      {
+        name: "Realtime Colors",
+        href: "https://www.realtimecolors.com/",
+        hint: "라이브 프리뷰",
+      },
+      {
+        name: "Type Scale",
+        href: "https://typescale.com/",
+      },
+      {
+        name: "Open Props",
+        href: "https://open-props.style/",
+        hint: "CSS 변수",
+      },
+    ],
+  },
+];
 
 const OFFICIAL: { name: string; href: string }[] = [
   { name: "Tailwind", href: "https://tailwindcss.com/" },
@@ -155,6 +408,7 @@ function wcagLabel(ratio: number, large: boolean): string {
 }
 
 const SECTIONS = [
+  { id: "samples", label: "샘플·레퍼런스" },
   { id: "tokens", label: "토큰" },
   { id: "components", label: "컴포넌트" },
   { id: "matrix", label: "매트릭스" },
@@ -166,14 +420,14 @@ export function DesignPlayground() {
   const [stackIdx, setStackIdx] = useState(3);
   const [libId, setLibId] = useState<(typeof UI_LIBS)[number]["id"]>("shadcn");
   const [screen, setScreen] = useState<Screen>("dash");
-  const [previewTheme, setPreviewTheme] = useState<"studio" | "paper">("studio");
+  const [presetId, setPresetId] = useState<string>(DESIGN_PRESETS[0].id);
   const [copied, setCopied] = useState<string | null>(null);
 
   const stack = STACKS[stackIdx];
   const cell = MATRIX[libId][stackIdx];
   const blurb = useMemo(() => scenarioBlurb(stack, screen), [stack, screen]);
-  const previewVars =
-    previewTheme === "studio" ? STUDIO_TOKENS : PAPER_TOKENS;
+  const currentPreset = PRESET_MAP[presetId] ?? DESIGN_PRESETS[0];
+  const previewVars = currentPreset.tokens;
 
   const contrastBody = contrastRatio(
     previewVars["--foreground"],
@@ -199,8 +453,9 @@ export function DesignPlayground() {
       }[screen] ?? screen;
     return [
       "K-Design Studio · UI 선택 메모",
+      `샘플 팔레트: ${currentPreset.label} (${currentPreset.tagline})`,
       `스택: ${stack}`,
-      `UI 키트: ${lib}`,
+      `UI 도구: ${lib}`,
       `매트릭스: ${cell}`,
       `시나리오: ${screenLabel}`,
       "",
@@ -208,10 +463,10 @@ export function DesignPlayground() {
       "",
       `출처: ${DOC_HREF}`,
     ].join("\n");
-  }, [stack, libId, cell, screen, blurb]);
+  }, [stack, libId, cell, screen, blurb, currentPreset]);
 
   const copyCssRoot = useCallback(async () => {
-    const block = `:root {\n${Object.entries(STUDIO_TOKENS)
+    const block = `:root {\n${Object.entries(previewVars)
       .map(([k, v]) => `  ${k}: ${v};`)
       .join("\n")}\n}`;
     try {
@@ -221,7 +476,7 @@ export function DesignPlayground() {
     } catch {
       setCopied(null);
     }
-  }, []);
+  }, [previewVars]);
 
   const copySummary = useCallback(async () => {
     try {
@@ -252,8 +507,8 @@ export function DesignPlayground() {
             >
               ui-frameworks.md
             </a>
-            와 동일한 적합성 표를 그리드로 보고, 토큰·대비·납품 컴포넌트 샘플을
-            한 번에 점검합니다.
+            와 적합성 표를 그리드로 보고, 샘플 팔레트·외부 레퍼런스·납품 컴포넌트를
+            한 페이지에서 점검합니다.
           </p>
         </div>
         <nav
@@ -278,7 +533,9 @@ export function DesignPlayground() {
           onClick={copyCssRoot}
           className="rounded-lg border border-[var(--border)] bg-[var(--card)]/50 px-3 py-2 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
         >
-          {copied === "css" ? "복사됨 · Studio :root" : "Studio :root CSS 복사"}
+          {copied === "css"
+            ? "복사됨 · 선택 샘플 :root"
+            : "선택 샘플 :root CSS 복사"}
         </button>
         <button
           type="button"
@@ -289,45 +546,128 @@ export function DesignPlayground() {
         </button>
       </div>
 
+      <section
+        id="samples"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/50 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">샘플 · 레퍼런스 허브</h2>
+        <p className="mt-1 max-w-3xl text-sm text-[var(--muted)] leading-relaxed">
+          아래는 영감용 링크 모음입니다. 브랜드·상표는 각 사이트의 정책을
+          따르고, 실제 납품 시에는 라이선스·가이드 준수 여부를 별도 확인하세요.
+        </p>
+        <div className="mt-6 space-y-8">
+          {REFERENCE_GROUPS.map((group) => (
+            <div key={group.title}>
+              <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                {group.title}
+              </h3>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)]/60 px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/40 hover:text-[var(--accent)]"
+                    >
+                      {item.name}
+                      {item.hint ? (
+                        <span className="font-normal text-[var(--muted)]">
+                          · {item.hint}
+                        </span>
+                      ) : null}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* 토큰 */}
       <section
         id="tokens"
         className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--card)]/80 to-[var(--card)]/30 p-6 sm:p-8"
       >
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">디자인 토큰</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              미리보기는 로컬 프리셋만 바꿉니다. 실제 사이트 테마는 그대로입니다.
-            </p>
-          </div>
-          <div className="flex rounded-lg border border-[var(--border)] p-0.5">
-            {(
-              [
-                ["studio", "Studio"],
-                ["paper", "Paper"],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setPreviewTheme(key)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                  previewTheme === key
-                    ? "bg-[var(--accent)]/20 text-[var(--accent)]"
-                    : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold">디자인 토큰 · 샘플 팔레트</h2>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            미리보기·복사는 선택한 샘플만 바뀝니다. 실제 사이트 글로벌 테마는
+            그대로입니다.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+            팔레트 고르기
+          </p>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {DESIGN_PRESETS.map((p) => {
+              const active = p.id === presetId;
+              const t = p.tokens;
+              return (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => setPresetId(p.id)}
+                    className={`flex w-full flex-col rounded-xl border p-4 text-left transition ${
+                      active
+                        ? "border-[var(--accent)] bg-[var(--accent)]/10 shadow-[0_0_0_1px_var(--accent)]"
+                        : "border-[var(--border)] bg-[var(--background)]/40 hover:border-[var(--accent)]/30"
+                    }`}
+                  >
+                    <div className="mb-3 flex gap-1">
+                      {[
+                        t["--background"],
+                        t["--card"],
+                        t["--accent"],
+                        t["--muted"],
+                      ].map((c, i) => (
+                        <span
+                          key={`${p.id}-swatch-${i}`}
+                          className="h-6 min-w-0 flex-1 rounded-md border border-black/20"
+                          style={{ background: c }}
+                          title={c}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-semibold text-[var(--foreground)]">
+                      {p.label}
+                    </span>
+                    <span className="mt-0.5 text-xs text-[var(--muted)]">
+                      {p.tagline}
+                    </span>
+                    {p.ref ? (
+                      <span className="mt-2 text-[10px] text-[var(--muted)]">
+                        참고: {p.ref}
+                        {p.refUrl ? (
+                          <>
+                            {" · "}
+                            <a
+                              href={p.refUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[var(--accent)] underline-offset-2 hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              링크
+                            </a>
+                          </>
+                        ) : null}
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-              팔레트 · {previewTheme === "studio" ? "다크 스튜디오" : "라이트 페이퍼"}
+              팔레트 · {currentPreset.label}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {(
@@ -348,12 +688,7 @@ export function DesignPlayground() {
                   >
                     <span
                       className="size-10 shrink-0 rounded-lg border border-[var(--border)] shadow-inner"
-                      style={{
-                        background:
-                          key === "--foreground" && previewTheme === "studio"
-                            ? "#e8eaef"
-                            : hex,
-                      }}
+                      style={{ background: hex }}
                       title={hex}
                     />
                     <div className="min-w-0">
@@ -435,6 +770,7 @@ export function DesignPlayground() {
                 background: previewVars["--background"],
                 color: previewVars["--foreground"],
                 borderColor: previewVars["--border"],
+                fontFamily: currentPreset.font,
               } as CSSProperties
             }
           >
@@ -477,7 +813,7 @@ export function DesignPlayground() {
                 className="rounded-lg px-4 py-2 text-sm font-semibold"
                 style={{
                   background: previewVars["--accent"],
-                  color: previewTheme === "studio" ? "#041016" : "#f8fafc",
+                  color: currentPreset.primaryOnAccent,
                 }}
               >
                 Primary

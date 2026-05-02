@@ -13,7 +13,7 @@ const cards = [
     href: "/poc/design",
     title: "디자인 · UI 키",
     description:
-      "ui-frameworks.md와 동기화한 적합성 매트릭스, 시나리오 가이드, 토큰·버튼 등 납품 UI 미리보기.",
+      "ui-frameworks.md 매트릭스, 9종 샘플 팔레트, 레퍼런스 허브(Mobbin·HIG 등), 토큰·컴포넌트 미리보기.",
   },
   {
     href: "/poc/cbt",
