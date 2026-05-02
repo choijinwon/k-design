@@ -23,6 +23,8 @@ monetization/
 │   ├── fullstack-builder.md
 │   ├── content-marketer.md
 │   └── revenue-optimizer.md
+├── samples/
+│   └── harness-design-sample.md   # Harness 적용 설계 MD 샘플
 └── skills/
     ├── mvp-sprint/SKILL.md
     ├── client-pitch/SKILL.md
@@ -36,6 +38,7 @@ monetization/
 ## Phase 2: 에이전트 팀 아키텍처
 
 - Harness Engineering 가이드(공식 문서 링크·용어·Phase·스킬/에이전트 구분): [references/harness-engineering.md](references/harness-engineering.md)
+- 설계 브리프 **샘플 MD** (복사용): [samples/harness-design-sample.md](samples/harness-design-sample.md)
 - 수익화 시나리오별 패턴 매핑, 팬아웃/팬인 + 생성-검증: [references/agent-architecture.md](references/agent-architecture.md)
 - 역할 정의: [agents/](agents/)
 - Cursor·Claude·Gemini·ChatGPT 역할 구분: [references/ai-assistants.md](references/ai-assistants.md)

@@ -2,6 +2,8 @@
 
 [revfactory/harness](https://github.com/revfactory/harness)의 **스킬·레퍼런스**를 기준으로, 바이브코딩 수익화 번들(`monetization/`)을 설계·운용할 때 무엇을 가져다 쓰는지 정리한다. **도구 이름**(`TeamCreate`, `SendMessage` 등)은 Claude Code + Harness **런타임** 전제이며, Cursor에서는 서브에이전트·태스크·수동 오케스트레이션으로 **사상(mapping)** 하면 된다.
 
+**설계 브리프 샘플(복붙용):** [samples/harness-design-sample.md](../samples/harness-design-sample.md)
+
 ## 공식 레퍼런스 (읽는 순서 권장)
 
 | 문서 | URL | 본 레포에서의 용도 |
