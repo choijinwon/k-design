@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import type { CSSProperties } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 const STACKS = ["HTML", "React", "Vue", "Next.js", "Nuxt"] as const;
 
@@ -15,7 +16,7 @@ const UI_LIBS = [
   { id: "materialize", label: "Materialize" },
 ] as const;
 
-/** 행 순서: HTML · React · Vue · Next.js · Nuxt — monetization/references/ui-frameworks.md */
+/** monetization/references/ui-frameworks.md — 행: 스택 열 순서 */
 const MATRIX: Record<(typeof UI_LIBS)[number]["id"], readonly string[]> = {
   tailwind: ["권장", "권장", "권장", "권장", "권장"],
   bootstrap: ["권장", "가능", "가능", "가능", "가능"],
@@ -33,20 +34,76 @@ const MATRIX: Record<(typeof UI_LIBS)[number]["id"], readonly string[]> = {
   ],
 };
 
+const STUDIO_TOKENS = {
+  "--background": "#070b12",
+  "--foreground": "#e8eaef",
+  "--muted": "#8b93a7",
+  "--card": "#0f1623",
+  "--border": "#1e2a3d",
+  "--accent": "#22d3ee",
+  "--accent-dim": "#0891b2",
+} as const;
+
+const PAPER_TOKENS = {
+  "--background": "#f8fafc",
+  "--foreground": "#0f172a",
+  "--muted": "#64748b",
+  "--card": "#ffffff",
+  "--border": "#e2e8f0",
+  "--accent": "#0e7490",
+  "--accent-dim": "#155e75",
+} as const;
+
 const DOC_HREF =
   "https://github.com/choijinwon/k-design/blob/main/monetization/references/ui-frameworks.md";
 
+const OFFICIAL: { name: string; href: string }[] = [
+  { name: "Tailwind", href: "https://tailwindcss.com/" },
+  { name: "Bootstrap", href: "https://getbootstrap.com/" },
+  { name: "M3", href: "https://m3.material.io/" },
+  { name: "MUI", href: "https://mui.com/" },
+  { name: "shadcn/ui", href: "https://ui.shadcn.com/" },
+  { name: "Ant Design", href: "https://ant.design/" },
+  { name: "Bulma", href: "https://bulma.io/" },
+  { name: "Materialize", href: "https://materializecss.com/" },
+  { name: "Nuxt UI", href: "https://ui.nuxt.com/" },
+];
+
 type Screen = "mpa" | "dash" | "embed" | "material";
 
+type CellTone = "good" | "ok" | "ref" | "bad";
+
+function cellTone(text: string): CellTone {
+  if (text.includes("비권장") || text.includes("신규 비권장")) return "bad";
+  if (text.includes("참고")) return "ref";
+  if (text === "권장" || (text.includes("권장") && !text.includes("비권장")))
+    return "good";
+  return "ok";
+}
+
+function toneClasses(tone: CellTone, active: boolean): string {
+  const base = "rounded-md px-1.5 py-0.5 text-[10px] font-medium sm:text-xs";
+  const ring = active ? " ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--card)]" : "";
+  switch (tone) {
+    case "good":
+      return `${base} bg-emerald-500/15 text-emerald-300${ring}`;
+    case "bad":
+      return `${base} bg-rose-500/15 text-rose-300${ring}`;
+    case "ref":
+      return `${base} bg-sky-500/15 text-sky-300${ring}`;
+    default:
+      return `${base} bg-amber-500/15 text-amber-200${ring}`;
+  }
+}
+
 function scenarioBlurb(stack: (typeof STACKS)[number], screen: Screen): string {
-  const isNext = stack === "Next.js";
   const isHtml = stack === "HTML";
   const isVueFamily = stack === "Vue" || stack === "Nuxt";
 
   if (screen === "mpa" && isHtml) {
     return "마크업 위주·정적 페이지라면 Bootstrap 또는 Bulma로 빠르게 골격을 잡는 편이 문서상 자연스럽습니다.";
   }
-  if (screen === "dash" && (stack === "React" || isNext)) {
+  if (screen === "dash" && (stack === "React" || stack === "Next.js")) {
     return "관리·테이블 밀도가 크면 MUI 또는 Ant Design으로 시간을 줄이고, 커스텀 소유권이 중요하면 Tailwind + shadcn/ui 조합을 검토합니다.";
   }
   if (screen === "dash" && isVueFamily) {
@@ -64,87 +121,392 @@ function scenarioBlurb(stack: (typeof STACKS)[number], screen: Screen): string {
   return "스택에 맞는 열을 매트릭스에서 확인하고, 팀이 이미 익숙한 키트를 번들·중복 측면에서 한 번 더 짚으면 됩니다.";
 }
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const h = hex.replace("#", "");
+  if (h.length !== 6) return null;
+  const n = parseInt(h, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function relativeLuminance(hex: string): number {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return 0;
+  const srgb = [rgb.r, rgb.g, rgb.b].map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+}
+
+function contrastRatio(fgHex: string, bgHex: string): number {
+  const L1 = relativeLuminance(fgHex);
+  const L2 = relativeLuminance(bgHex);
+  const light = Math.max(L1, L2);
+  const dark = Math.min(L1, L2);
+  return (light + 0.05) / (dark + 0.05);
+}
+
+function wcagLabel(ratio: number, large: boolean): string {
+  const aa = large ? 3 : 4.5;
+  const aaa = large ? 4.5 : 7;
+  if (ratio >= aaa) return "AAA";
+  if (ratio >= aa) return "AA";
+  return "미달";
+}
+
+const SECTIONS = [
+  { id: "tokens", label: "토큰" },
+  { id: "components", label: "컴포넌트" },
+  { id: "matrix", label: "매트릭스" },
+  { id: "scenario", label: "시나리오" },
+  { id: "links", label: "문서·링크" },
+] as const;
+
 export function DesignPlayground() {
   const [stackIdx, setStackIdx] = useState(3);
-  const [libId, setLibId] = useState<(typeof UI_LIBS)[number]["id"]>("tailwind");
+  const [libId, setLibId] = useState<(typeof UI_LIBS)[number]["id"]>("shadcn");
   const [screen, setScreen] = useState<Screen>("dash");
+  const [previewTheme, setPreviewTheme] = useState<"studio" | "paper">("studio");
+  const [copied, setCopied] = useState<string | null>(null);
 
   const stack = STACKS[stackIdx];
   const cell = MATRIX[libId][stackIdx];
-  const blurb = useMemo(
-    () => scenarioBlurb(stack, screen),
-    [stack, screen],
+  const blurb = useMemo(() => scenarioBlurb(stack, screen), [stack, screen]);
+  const previewVars =
+    previewTheme === "studio" ? STUDIO_TOKENS : PAPER_TOKENS;
+
+  const contrastBody = contrastRatio(
+    previewVars["--foreground"],
+    previewVars["--background"],
+  );
+  const contrastAccent = contrastRatio(
+    previewVars["--accent"],
+    previewVars["--background"],
+  );
+  const contrastMuted = contrastRatio(
+    previewVars["--muted"],
+    previewVars["--background"],
   );
 
-  return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-10 sm:px-6">
-      <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[var(--accent)]">
-        POC · 디자인
-      </p>
-      <h1 className="mb-4 text-2xl font-bold sm:text-3xl">
-        UI 키·토큰·컴포넌트 미리보기
-      </h1>
-      <p className="mb-8 text-[var(--muted)] leading-relaxed">
-        레포의{" "}
-        <a
-          href={DOC_HREF}
-          className="text-[var(--accent)] underline-offset-2 hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ui-frameworks.md
-        </a>
-        매트릭스를 그대로 조회하고, 이 사이트가 쓰는 CSS 변수로 납품 UI 톤을
-        확인합니다.
-      </p>
+  const summaryText = useMemo(() => {
+    const lib = UI_LIBS.find((x) => x.id === libId)?.label ?? libId;
+    const screenLabel =
+      {
+        mpa: "정적·MPA",
+        dash: "대시보드·데이터 밀도",
+        embed: "임베디드·뷰어",
+        material: "Material 톤",
+      }[screen] ?? screen;
+    return [
+      "K-Design Studio · UI 선택 메모",
+      `스택: ${stack}`,
+      `UI 키트: ${lib}`,
+      `매트릭스: ${cell}`,
+      `시나리오: ${screenLabel}`,
+      "",
+      blurb,
+      "",
+      `출처: ${DOC_HREF}`,
+    ].join("\n");
+  }, [stack, libId, cell, screen, blurb]);
 
-      <section className="mb-10 space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/40 p-6">
-        <h2 className="text-lg font-semibold">디자인 토큰 (이 사이트)</h2>
-        <div className="flex flex-wrap gap-3">
-          {(
-            [
-              ["Background", "var(--background)"],
-              ["Foreground", "var(--foreground)"],
-              ["Muted", "var(--muted)"],
-              ["Card", "var(--card)"],
-              ["Border", "var(--border)"],
-              ["Accent", "var(--accent)"],
-            ] as const
-          ).map(([label, v]) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-xs"
+  const copyCssRoot = useCallback(async () => {
+    const block = `:root {\n${Object.entries(STUDIO_TOKENS)
+      .map(([k, v]) => `  ${k}: ${v};`)
+      .join("\n")}\n}`;
+    try {
+      await navigator.clipboard.writeText(block);
+      setCopied("css");
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
+    }
+  }, []);
+
+  const copySummary = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(summaryText);
+      setCopied("summary");
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
+    }
+  }, [summaryText]);
+
+  return (
+    <main className="mx-auto max-w-5xl px-4 pb-28 pt-8 sm:px-6 sm:pt-10">
+      <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[var(--accent)]">
+            POC · 디자인
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            UI 키 · 토큰 · 컴포넌트 · 매트릭스
+          </h1>
+          <p className="mt-3 text-[var(--muted)] leading-relaxed">
+            <a
+              href={DOC_HREF}
+              className="text-[var(--accent)] underline-offset-2 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <span
-                className="size-8 shrink-0 rounded-md border border-[var(--border)]"
-                style={{ background: v === "var(--foreground)" ? "#e8eaef" : v }}
-                title={v}
-              />
-              <div>
-                <p className="font-medium text-[var(--foreground)]">{label}</p>
-                <p className="text-[var(--muted)]">{v}</p>
+              ui-frameworks.md
+            </a>
+            와 동일한 적합성 표를 그리드로 보고, 토큰·대비·납품 컴포넌트 샘플을
+            한 번에 점검합니다.
+          </p>
+        </div>
+        <nav
+          aria-label="섹션 이동"
+          className="flex flex-wrap gap-2 lg:max-w-md lg:justify-end"
+        >
+          {SECTIONS.map(({ id, label }) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className="rounded-full border border-[var(--border)] bg-[var(--card)]/60 px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)]/40 hover:text-[var(--foreground)]"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+      </div>
+
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={copyCssRoot}
+          className="rounded-lg border border-[var(--border)] bg-[var(--card)]/50 px-3 py-2 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+        >
+          {copied === "css" ? "복사됨 · Studio :root" : "Studio :root CSS 복사"}
+        </button>
+        <button
+          type="button"
+          onClick={copySummary}
+          className="rounded-lg border border-[var(--border)] bg-[var(--card)]/50 px-3 py-2 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+        >
+          {copied === "summary" ? "복사됨 · 선택 요약" : "선택 요약(메모) 복사"}
+        </button>
+      </div>
+
+      {/* 토큰 */}
+      <section
+        id="tokens"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--card)]/80 to-[var(--card)]/30 p-6 sm:p-8"
+      >
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">디자인 토큰</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              미리보기는 로컬 프리셋만 바꿉니다. 실제 사이트 테마는 그대로입니다.
+            </p>
+          </div>
+          <div className="flex rounded-lg border border-[var(--border)] p-0.5">
+            {(
+              [
+                ["studio", "Studio"],
+                ["paper", "Paper"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setPreviewTheme(key)}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                  previewTheme === key
+                    ? "bg-[var(--accent)]/20 text-[var(--accent)]"
+                    : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+              팔레트 · {previewTheme === "studio" ? "다크 스튜디오" : "라이트 페이퍼"}
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {(
+                [
+                  ["Background", "--background"],
+                  ["Foreground", "--foreground"],
+                  ["Muted", "--muted"],
+                  ["Card", "--card"],
+                  ["Border", "--border"],
+                  ["Accent", "--accent"],
+                ] as const
+              ).map(([label, key]) => {
+                const hex = previewVars[key as keyof typeof previewVars];
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)]/50 p-3"
+                  >
+                    <span
+                      className="size-10 shrink-0 rounded-lg border border-[var(--border)] shadow-inner"
+                      style={{
+                        background:
+                          key === "--foreground" && previewTheme === "studio"
+                            ? "#e8eaef"
+                            : hex,
+                      }}
+                      title={hex}
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-[var(--foreground)]">
+                        {label}
+                      </p>
+                      <p className="truncate font-mono text-[10px] text-[var(--muted)]">
+                        {hex}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                대비 (WCAG 2.1)
+              </p>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li className="flex flex-wrap justify-between gap-2">
+                  <span className="text-[var(--muted)]">본문 / 배경</span>
+                  <span className="font-mono text-[var(--foreground)]">
+                    {contrastBody.toFixed(2)} : 1 ·{" "}
+                    <span
+                      className={
+                        wcagLabel(contrastBody, false) === "미달"
+                          ? "text-rose-400"
+                          : "text-emerald-400"
+                      }
+                    >
+                      {wcagLabel(contrastBody, false)} (본문)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex flex-wrap justify-between gap-2">
+                  <span className="text-[var(--muted)]">강조 / 배경</span>
+                  <span className="font-mono text-[var(--foreground)]">
+                    {contrastAccent.toFixed(2)} : 1 ·{" "}
+                    <span className="text-amber-300">
+                      {wcagLabel(contrastAccent, true)} (큰 글자·UI)
+                    </span>
+                  </span>
+                </li>
+                <li className="flex flex-wrap justify-between gap-2">
+                  <span className="text-[var(--muted)]">보조 / 배경</span>
+                  <span className="font-mono text-[var(--foreground)]">
+                    {contrastMuted.toFixed(2)} : 1 · 보조 텍스트
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="mt-6">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                spacing · 4px 기준
+              </p>
+              <div className="flex items-end gap-2">
+                {[4, 8, 12, 16, 24, 32].map((px) => (
+                  <div key={px} className="flex flex-col items-center gap-1">
+                    <div
+                      className="w-6 rounded-t bg-[var(--accent)]/40"
+                      style={{ height: px }}
+                      title={`${px}px`}
+                    />
+                    <span className="font-mono text-[10px] text-[var(--muted)]">
+                      {px}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-        <div className="space-y-1 border-t border-[var(--border)] pt-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-            타이포 단계
-          </p>
-          <p className="text-xs text-[var(--muted)]">caption</p>
-          <p className="text-sm text-[var(--foreground)]">body · 폼·본문</p>
-          <p className="text-lg font-semibold text-[var(--foreground)]">
-            section title
-          </p>
-          <p className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-            Hero
-          </p>
+          </div>
+
+          <div
+            className="rounded-2xl border border-[var(--border)] p-6 shadow-lg"
+            style={
+              {
+                background: previewVars["--background"],
+                color: previewVars["--foreground"],
+                borderColor: previewVars["--border"],
+              } as CSSProperties
+            }
+          >
+            <p
+              className="text-xs font-medium uppercase tracking-wide"
+              style={{ color: previewVars["--muted"] }}
+            >
+              미리보기 패널
+            </p>
+            <p
+              className="mt-3 text-2xl font-bold tracking-tight"
+              style={{ color: previewVars["--foreground"] }}
+            >
+              Hero 제목
+            </p>
+            <p
+              className="mt-2 text-sm leading-relaxed"
+              style={{ color: previewVars["--muted"] }}
+            >
+              본문과 캡션 색이 프리셋에서 어떻게 보이는지 확인합니다.
+            </p>
+            <div
+              className="mt-4 rounded-xl border p-4"
+              style={{
+                background: previewVars["--card"],
+                borderColor: previewVars["--border"],
+              }}
+            >
+              <p className="text-sm font-semibold">카드 영역</p>
+              <p
+                className="mt-1 text-xs"
+                style={{ color: previewVars["--muted"] }}
+              >
+                카드 배경·테두리 토큰
+              </p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="rounded-lg px-4 py-2 text-sm font-semibold"
+                style={{
+                  background: previewVars["--accent"],
+                  color: previewTheme === "studio" ? "#041016" : "#f8fafc",
+                }}
+              >
+                Primary
+              </button>
+              <button
+                type="button"
+                className="rounded-lg border px-4 py-2 text-sm font-medium"
+                style={{
+                  borderColor: previewVars["--border"],
+                  color: previewVars["--foreground"],
+                }}
+              >
+                Outline
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mb-10 space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/40 p-6">
-        <h2 className="text-lg font-semibold">컴포넌트 스트립 (납품 톤 샘플)</h2>
-        <div className="flex flex-wrap items-center gap-3">
+      {/* 컴포넌트 */}
+      <section
+        id="components"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">컴포넌트 스트립 (사이트 테마)</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          실제 납품 페이지와 동일한 CSS 변수를 씁니다.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="button"
             className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[#041016] transition hover:brightness-110"
@@ -157,21 +519,73 @@ export function DesignPlayground() {
           >
             Outline
           </button>
+          <button
+            type="button"
+            disabled
+            className="rounded-lg border border-[var(--border)]/60 px-4 py-2 text-sm text-[var(--muted)] opacity-60"
+          >
+            Disabled
+          </button>
           <span className="rounded-md border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-2 py-1 text-xs font-medium text-[var(--accent)]">
             Badge
           </span>
+          <span className="rounded-md bg-[var(--muted)]/20 px-2 py-1 text-xs text-[var(--muted)]">
+            Muted
+          </span>
           <input
             type="text"
-            readOnly
-            placeholder="Input 예시"
-            className="min-w-[10rem] rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
+            placeholder="입력 필드"
+            className="min-w-[11rem] rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
           />
+        </div>
+        <div
+          role="tablist"
+          className="mt-6 inline-flex rounded-lg border border-[var(--border)] p-0.5"
+        >
+          <span
+            role="tab"
+            aria-selected
+            className="rounded-md bg-[var(--accent)]/20 px-3 py-1.5 text-xs font-medium text-[var(--accent)]"
+          >
+            탭 A
+          </span>
+          <span
+            role="tab"
+            className="px-3 py-1.5 text-xs text-[var(--muted)]"
+          >
+            탭 B
+          </span>
+        </div>
+        <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--accent)]/10 px-4 py-3 text-sm text-[var(--foreground)]">
+          <strong className="text-[var(--accent)]">알림</strong>
+          {" — "}인라인 알림·배너 톤 샘플입니다.
+        </div>
+        <div className="mt-6 space-y-1 border-t border-[var(--border)] pt-6">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+            타이포 스케일
+          </p>
+          <p className="text-xs text-[var(--muted)]">caption · 보조</p>
+          <p className="text-sm text-[var(--foreground)]">body · 폼·본문</p>
+          <p className="text-lg font-semibold text-[var(--foreground)]">
+            section title
+          </p>
+          <p className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Hero
+          </p>
         </div>
       </section>
 
-      <section className="mb-10 space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/40 p-6">
-        <h2 className="text-lg font-semibold">적합성 매트릭스 (문서 동기화)</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+      {/* 매트릭스 */}
+      <section
+        id="matrix"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">적합성 매트릭스</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          셀을 눌러 스택·UI 키트를 맞춥니다. 색: 권장(녹)·주의(황)·참고(청)·비권장(적).
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <label className="block text-sm">
             <span className="mb-1 block font-medium text-[var(--foreground)]">
               스택
@@ -207,7 +621,64 @@ export function DesignPlayground() {
             </select>
           </label>
         </div>
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
+
+        <div className="mt-6 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--background)]/50">
+          <table className="min-w-[640px] w-full border-collapse text-left text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                <th className="sticky left-0 z-10 bg-[var(--background)] px-3 py-2 font-medium text-[var(--muted)]">
+                  UI 키트
+                </th>
+                {STACKS.map((s) => (
+                  <th
+                    key={s}
+                    className={`px-2 py-2 font-medium ${
+                      STACKS[stackIdx] === s
+                        ? "text-[var(--accent)]"
+                        : "text-[var(--foreground)]"
+                    }`}
+                  >
+                    {s}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {UI_LIBS.map((L) => (
+                <tr
+                  key={L.id}
+                  className={`border-b border-[var(--border)]/80 ${
+                    L.id === libId ? "bg-[var(--accent)]/5" : ""
+                  }`}
+                >
+                  <th className="sticky left-0 z-10 bg-[var(--card)]/95 px-3 py-2 text-left font-medium text-[var(--foreground)] backdrop-blur-sm">
+                    {L.label}
+                  </th>
+                  {STACKS.map((_, colIdx) => {
+                    const c = MATRIX[L.id][colIdx];
+                    const active = L.id === libId && colIdx === stackIdx;
+                    return (
+                      <td key={colIdx} className="p-1 align-middle">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLibId(L.id);
+                            setStackIdx(colIdx);
+                          }}
+                          className={`w-full text-left ${toneClasses(cellTone(c), active)}`}
+                        >
+                          <span className="line-clamp-2 leading-snug">{c}</span>
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 p-4">
           <p className="text-sm text-[var(--muted)]">
             <span className="font-medium text-[var(--foreground)]">{stack}</span>
             {" × "}
@@ -216,23 +687,26 @@ export function DesignPlayground() {
             </span>
           </p>
           <p className="mt-2 text-xl font-semibold text-[var(--accent)]">{cell}</p>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            표기 상세(권장·가능·비권장 등)는 문서 「프레임워크 적합성 매트릭스」와
-            동일합니다.
-          </p>
         </div>
       </section>
 
-      <section className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)]/40 p-6">
-        <h2 className="text-lg font-semibold">시나리오 한 줄 (선택 가이드)</h2>
-        <label className="block text-sm">
+      {/* 시나리오 */}
+      <section
+        id="scenario"
+        className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">시나리오 한 줄</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          문서의 「선택 가이드」를 짧게 재구성했습니다.
+        </p>
+        <label className="mt-6 block text-sm">
           <span className="mb-1 block font-medium text-[var(--foreground)]">
             화면·제품 성격
           </span>
           <select
             value={screen}
             onChange={(e) => setScreen(e.target.value as Screen)}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+            className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
           >
             <option value="mpa">정적·마크업 위주 (MPA 성향)</option>
             <option value="dash">관리·대시보드·데이터 밀도</option>
@@ -240,9 +714,45 @@ export function DesignPlayground() {
             <option value="material">Material 토큰·룩앤필 중시</option>
           </select>
         </label>
-        <p className="text-sm leading-relaxed text-[var(--muted)]">
-          현재 스택 <strong className="text-[var(--foreground)]">{stack}</strong>
-          : {blurb}
+        <p className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-4 text-sm leading-relaxed text-[var(--muted)]">
+          현재 스택{" "}
+          <strong className="text-[var(--foreground)]">{stack}</strong>: {blurb}
+        </p>
+      </section>
+
+      {/* 링크 */}
+      <section
+        id="links"
+        className="scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
+      >
+        <h2 className="text-lg font-semibold">공식 문서 · 확장</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          ui-frameworks.md 표와 동일 계열 링크입니다.
+        </p>
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {OFFICIAL.map(({ name, href }) => (
+            <li key={href}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--background)]/50 px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/40 hover:text-[var(--accent)]"
+              >
+                {name}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-sm text-[var(--muted)]">
+          원본:{" "}
+          <a
+            href={DOC_HREF}
+            className="text-[var(--accent)] underline-offset-2 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            monetization/references/ui-frameworks.md
+          </a>
         </p>
       </section>
     </main>
