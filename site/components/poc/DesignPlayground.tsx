@@ -215,43 +215,121 @@ const PRESET_MAP: Record<string, DesignPreset> = Object.fromEntries(
 const DOC_HREF =
   "https://github.com/choijinwon/k-design/blob/main/monetization/references/ui-frameworks.md";
 
+type DesignSystemGuide = {
+  id: string;
+  name: string;
+  href: string;
+  hint?: string;
+  /** tokens 섹션 샘플 팔레트 id */
+  suggestPresetId?: string;
+  /** 매트릭스 UI 키 후보 */
+  suggestLibId?: (typeof UI_LIBS)[number]["id"];
+  checklist: readonly string[];
+};
+
+const DESIGN_SYSTEM_GUIDES: readonly DesignSystemGuide[] = [
+  {
+    id: "apple-hig",
+    name: "Apple HIG",
+    href: "https://developer.apple.com/design/human-interface-guidelines/",
+    suggestPresetId: "paper",
+    suggestLibId: "shadcn",
+    checklist: [
+      "터치 타깃·세이프 에어리어를 문서 기준으로 와이어/스펙에 먼저 넣습니다.",
+      "웹·하이브리드는 SF Pro 대체 서체와 모션 강도를 플랫폼과 맞춥니다.",
+      "모달·시트·탭 스택 규칙을 정한 뒤 컴포넌트 라이브러리를 고릅니다.",
+    ],
+  },
+  {
+    id: "m3",
+    name: "Material Design 3",
+    href: "https://m3.material.io/",
+    hint: "스펙·토큰",
+    suggestPresetId: "paper",
+    suggestLibId: "mui",
+    checklist: [
+      "색 역할(primary, surface, error)·모양·모션 토큰 표를 프로젝트용으로 옮깁니다.",
+      "M3 행은 ‘npm 한 패키지’가 아니라 규격 참고용입니다. 구현은 MUI·자체 컴포넌트 중 선택합니다.",
+      "다이내믹 컬러·틴트 표면을 쓸지 범위를 정하고 접근성 대비를 별도 검증합니다.",
+    ],
+  },
+  {
+    id: "fluent",
+    name: "Fluent 2",
+    href: "https://fluent2.microsoft.design/",
+    suggestPresetId: "linear",
+    suggestLibId: "mui",
+    checklist: [
+      "Microsoft 365 밀도·간격 스케일을 참고해 테이블·명령 영역을 설계합니다.",
+      "아이콘·어포던스가 플랫폼 공식 세트와 맞는지 확인합니다.",
+      "엔터프라이즈 폼·리본 대안은 팀 UI 키트와 역할을 나눠 정합니다.",
+    ],
+  },
+  {
+    id: "atlassian",
+    name: "Atlassian Design",
+    href: "https://atlassian.design/",
+    suggestPresetId: "forest",
+    suggestLibId: "ant",
+    checklist: [
+      "제품·마케팅·설명 문서 토큰이 분리돼 있으면 브랜드 레이어를 먼저 합의합니다.",
+      "이슈·에디터·멘션 등 협업 패턴을 화면 목록으로 빼낸 뒤 컴포넌트에 매핑합니다.",
+      "데이터 밀도가 높으면 표·필터 키트를 Ant/MUI 등과 짝지어 검토합니다.",
+    ],
+  },
+  {
+    id: "primer",
+    name: "Primer",
+    href: "https://primer.style/",
+    suggestPresetId: "mono",
+    suggestLibId: "shadcn",
+    checklist: [
+      "GitHub 풍 인터랙션(버튼·라벨·토큰)을 참고해 중립 톤·코드 UI를 맞춥니다.",
+      "다크/라이트 동시 운영 시 토큰 이중 세트를 초기에 나눕니다.",
+      "오픈소스·개발자 대상 제품은 문서·코드블록 대비를 Primer 가이드와 맞춥니다.",
+    ],
+  },
+  {
+    id: "carbon",
+    name: "Carbon (IBM)",
+    href: "https://carbondesignsystem.com/",
+    suggestPresetId: "paper",
+    suggestLibId: "ant",
+    checklist: [
+      "데이터·테이블·대시보드 비중이 크면 그리드 2× 기반 레이아웃을 먼저 잡습니다.",
+      "알림·상태색은 Carbon 시맨틱과 WCAG를 함께 맞춥니다.",
+      "IBM Plex 등 제안 서체·아이콘 세트 사용 여부를 브랜드 계약과 확인합니다.",
+    ],
+  },
+  {
+    id: "govuk",
+    name: "Gov.uk Design",
+    href: "https://design-system.service.gov.uk/",
+    suggestPresetId: "paper",
+    suggestLibId: "bootstrap",
+    checklist: [
+      "공공·행정은 명확한 제목 위계·단순 내비·큰 타깃을 우선합니다.",
+      "문구는 평서체·능동태 등 스타일 가이드를 따르고, 상태는 색만으로 구분하지 않습니다.",
+      "정적·MPA 친화 구조면 Bootstrap/Bulma + 규정 점검 리스트를 병행하기 쉽습니다.",
+    ],
+  },
+] as const;
+
+const DESIGN_GUIDE_BY_ID: Record<string, DesignSystemGuide> = Object.fromEntries(
+  DESIGN_SYSTEM_GUIDES.map((g) => [g.id, g]),
+);
+
 const REFERENCE_GROUPS: {
   title: string;
   items: { name: string; href: string; hint?: string }[];
 }[] = [
   {
     title: "디자인 시스템 · 가이드",
-    items: [
-      {
-        name: "Apple HIG",
-        href: "https://developer.apple.com/design/human-interface-guidelines/",
-      },
-      {
-        name: "Material Design 3",
-        href: "https://m3.material.io/",
-        hint: "스펙·토큰",
-      },
-      {
-        name: "Fluent 2",
-        href: "https://fluent2.microsoft.design/",
-      },
-      {
-        name: "Atlassian Design",
-        href: "https://atlassian.design/",
-      },
-      {
-        name: "Primer",
-        href: "https://primer.style/",
-      },
-      {
-        name: "Carbon (IBM)",
-        href: "https://carbondesignsystem.com/",
-      },
-      {
-        name: "Gov.uk Design",
-        href: "https://design-system.service.gov.uk/",
-      },
-    ],
+    items: DESIGN_SYSTEM_GUIDES.map(({ name, href, hint }) => ({
+      name,
+      href,
+      hint,
+    })),
   },
   {
     title: "스크린 · 플로우 레퍼런스",
@@ -694,6 +772,9 @@ export function DesignPlayground() {
   const [galleryTableRow, setGalleryTableRow] = useState<string | null>(
     "김민수",
   );
+  const [designGuideId, setDesignGuideId] = useState<string>(
+    DESIGN_SYSTEM_GUIDES[0].id,
+  );
 
   const stack = STACKS[stackIdx];
   const cell = MATRIX[libId][stackIdx];
@@ -717,8 +798,11 @@ export function DesignPlayground() {
   const summaryText = useMemo(() => {
     const lib = UI_LIBS.find((x) => x.id === libId)?.label ?? libId;
     const screenLabel = SCENARIO_SUMMARY_LABEL[screen] ?? screen;
+    const dg =
+      DESIGN_GUIDE_BY_ID[designGuideId] ?? DESIGN_SYSTEM_GUIDES[0];
     return [
       "K-Design Studio · UI 선택 메모",
+      `디자인 가이드(참고): ${dg.name}`,
       `샘플 팔레트: ${currentPreset.label} (${currentPreset.tagline})`,
       `스택: ${stack}`,
       `UI 도구: ${lib}`,
@@ -729,7 +813,7 @@ export function DesignPlayground() {
       "",
       `출처: ${DOC_HREF}`,
     ].join("\n");
-  }, [stack, libId, cell, screen, blurb, currentPreset]);
+  }, [stack, libId, cell, screen, blurb, currentPreset, designGuideId]);
 
   const copyCssRoot = useCallback(async () => {
     const block = `:root {\n${Object.entries(previewVars)
@@ -753,6 +837,59 @@ export function DesignPlayground() {
       setCopied(null);
     }
   }, [summaryText]);
+
+  const activeDesignGuide =
+    DESIGN_GUIDE_BY_ID[designGuideId] ?? DESIGN_SYSTEM_GUIDES[0];
+
+  const designGuideBriefText = useMemo(() => {
+    const g = activeDesignGuide;
+    const presetLabel = g.suggestPresetId
+      ? (PRESET_MAP[g.suggestPresetId]?.label ?? g.suggestPresetId)
+      : "미지정";
+    const libLabel = g.suggestLibId
+      ? (UI_LIBS.find((x) => x.id === g.suggestLibId)?.label ?? g.suggestLibId)
+      : "미지정";
+    return [
+      `K-Design POC · [${g.name}] 기반 UI 브리프`,
+      `공식 가이드: ${g.href}`,
+      "",
+      "권장 시작점 (POC에서 한 번에 적용 가능):",
+      `- 샘플 팔레트: ${presetLabel}`,
+      `- 매트릭스 UI 키: ${libLabel}`,
+      "",
+      "체크리스트:",
+      ...g.checklist.map((c) => `- ${c}`),
+      "",
+      `참고 스택(현재 탭): ${stack}`,
+      "",
+      DOC_HREF,
+    ].join("\n");
+  }, [activeDesignGuide, stack]);
+
+  const applyDesignGuideRecommendations = useCallback(() => {
+    const g = DESIGN_GUIDE_BY_ID[designGuideId];
+    if (!g) return;
+    if (g.suggestPresetId && PRESET_MAP[g.suggestPresetId]) {
+      setPresetId(g.suggestPresetId);
+    }
+    if (g.suggestLibId) setLibId(g.suggestLibId);
+    requestAnimationFrame(() => {
+      document.getElementById("tokens")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [designGuideId]);
+
+  const copyDesignGuideBrief = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(designGuideBriefText);
+      setCopied("brief");
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
+    }
+  }, [designGuideBriefText]);
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-28 pt-8 sm:px-6 sm:pt-10">
@@ -821,7 +958,89 @@ export function DesignPlayground() {
           아래는 영감용 링크 모음입니다. 브랜드·상표는 각 사이트의 정책을
           따르고, 실제 납품 시에는 라이선스·가이드 준수 여부를 별도 확인하세요.
         </p>
-        <div className="mt-6 space-y-8">
+
+        <div className="mt-8 rounded-2xl border border-[var(--accent)]/25 bg-[var(--card)]/60 p-5 sm:p-6">
+          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+            가이드 선택 → 시안 맞추기
+          </h3>
+          <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
+            디자인 시스템 가이드를 고르면 체크리스트와 권장 팔레트·UI 키가
+            정리됩니다. 적용 버튼으로 아래「토큰」「매트릭스」까지 한 번에 맞출 수
+            있습니다.
+          </p>
+          <label className="mt-4 block max-w-xl text-sm">
+            <span className="mb-1.5 block font-medium text-[var(--foreground)]">
+              디자인 시스템 · 가이드
+            </span>
+            <select
+              value={designGuideId}
+              onChange={(e) => setDesignGuideId(e.target.value)}
+              className="w-full cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)]"
+            >
+              {DESIGN_SYSTEM_GUIDES.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                  {g.hint ? ` — ${g.hint}` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/50 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+              체크리스트
+            </p>
+            <ul className="mt-2 list-disc space-y-1.5 pl-4 text-sm text-[var(--muted)] leading-relaxed">
+              {activeDesignGuide.checklist.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+            <a
+              href={activeDesignGuide.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--background)]/60 px-3 py-2 font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50 hover:text-[var(--accent)]"
+            >
+              공식 가이드 열기
+            </a>
+            <button
+              type="button"
+              onClick={applyDesignGuideRecommendations}
+              className="rounded-lg bg-[var(--accent)] px-3 py-2 font-semibold text-[#041016] transition hover:brightness-110"
+            >
+              추천 팔레트·UI 키 적용
+            </button>
+            <button
+              type="button"
+              onClick={copyDesignGuideBrief}
+              className="rounded-lg border border-[var(--border)] bg-[var(--card)]/50 px-3 py-2 font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+            >
+              {copied === "brief" ? "복사됨 · 가이드 브리프" : "브리프 복사"}
+            </button>
+          </div>
+
+          <p className="mt-3 text-xs text-[var(--muted)]">
+            적용 권장: 팔레트{" "}
+            <strong className="text-[var(--foreground)]">
+              {activeDesignGuide.suggestPresetId
+                ? (PRESET_MAP[activeDesignGuide.suggestPresetId]?.label ??
+                  activeDesignGuide.suggestPresetId)
+                : "—"}
+            </strong>
+            {" · "}UI 키{" "}
+            <strong className="text-[var(--foreground)]">
+              {activeDesignGuide.suggestLibId
+                ? (UI_LIBS.find((x) => x.id === activeDesignGuide.suggestLibId)
+                    ?.label ?? activeDesignGuide.suggestLibId)
+                : "—"}
+            </strong>
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-8">
           {REFERENCE_GROUPS.map((group) => (
             <div key={group.title}>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
