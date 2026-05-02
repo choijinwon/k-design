@@ -5,10 +5,16 @@ import { PocShell } from "@/components/PocShell";
 export const metadata: Metadata = {
   title: "실행 POC | K-Design Studio",
   description:
-    "교안 CBT 초안, 가격 시뮬레이션, 오케스트레이션 패턴, MVP 스프린트 체크리스트를 브라우저에서 바로 확인합니다.",
+    "디자인·UI 키 매트릭스, 교안 CBT 초안, 가격 시뮬, 패턴 매칭, MVP 스프린트를 브라우저에서 확인합니다.",
 };
 
 const cards = [
+  {
+    href: "/poc/design",
+    title: "디자인 · UI 키",
+    description:
+      "ui-frameworks.md와 동기화한 적합성 매트릭스, 시나리오 가이드, 토큰·버튼 등 납품 UI 미리보기.",
+  },
   {
     href: "/poc/cbt",
     title: "교안 → CBT 초안",
