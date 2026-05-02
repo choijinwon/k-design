@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
+import { SiteHeader } from "@/components/SiteHeader";
 
 const GITHUB = "https://github.com/choijinwon/k-design";
 
@@ -6,43 +8,12 @@ function getContactEmail(): string {
   return process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "your-email@example.com";
 }
 
-const nav = [
-  { href: "#positioning", label: "포지션" },
-  { href: "#method", label: "방식" },
-  { href: "#services", label: "서비스" },
-  { href: "#pricing", label: "가격" },
-  { href: "#contact", label: "문의" },
-];
-
 export default function Home() {
   const contactEmail = getContactEmail();
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <header className="sticky top-0 z-50 border-b border-[var(--border)]/80 bg-[var(--background)]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <a href="#" className="text-lg font-semibold tracking-tight">
-            K-Design <span className="text-[var(--accent)]">Studio</span>
-          </a>
-          <nav className="hidden items-center gap-6 text-sm text-[var(--muted)] sm:flex">
-            {nav.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="transition hover:text-[var(--foreground)]"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-          <a
-            href="#contact"
-            className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-semibold text-[#041016] transition hover:brightness-110"
-          >
-            프로젝트 문의
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main>
         <section className="mx-auto max-w-5xl px-4 pb-24 pt-16 sm:px-6 sm:pt-24">
@@ -59,18 +30,18 @@ export default function Home() {
             납품합니다. 프리랜서보다 안정적으로, 대형 에이전시보다 빠르게.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               className="rounded-lg bg-[var(--accent)] px-6 py-3 font-semibold text-[#041016] transition hover:brightness-110"
             >
               견적 · 미팅 요청
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              href="/#pricing"
               className="rounded-lg border border-[var(--border)] px-6 py-3 font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
             >
               패키지 보기
-            </a>
+            </Link>
             <a
               href={GITHUB}
               target="_blank"
@@ -79,6 +50,12 @@ export default function Home() {
             >
               GitHub
             </a>
+            <Link
+              href="/sample"
+              className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+            >
+              Harness 설계 샘플
+            </Link>
           </div>
         </section>
 
