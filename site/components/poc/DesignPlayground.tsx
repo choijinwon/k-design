@@ -683,6 +683,17 @@ export function DesignPlayground() {
   const [demoSwitch, setDemoSwitch] = useState(true);
   const [demoRadio, setDemoRadio] = useState<"a" | "b" | "c">("b");
   const [demoChecks, setDemoChecks] = useState({ agree: true, promo: false });
+  const [galleryTab, setGalleryTab] = useState<
+    "overview" | "members" | "billing"
+  >("overview");
+  const [galleryBilling, setGalleryBilling] = useState<"month" | "year">(
+    "month",
+  );
+  const [galleryPage, setGalleryPage] = useState(2);
+  const [demoPlan, setDemoPlan] = useState("pro");
+  const [galleryTableRow, setGalleryTableRow] = useState<string | null>(
+    "김민수",
+  );
 
   const stack = STACKS[stackIdx];
   const cell = MATRIX[libId][stackIdx];
@@ -1189,11 +1200,23 @@ export function DesignPlayground() {
               aria-label="breadcrumb"
               className="mt-3 flex flex-wrap items-center gap-1 text-sm text-[var(--muted)]"
             >
-              <a href="#" className="text-[var(--accent)] hover:underline">
+              <a
+                href="#components"
+                className="text-[var(--accent)] hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 홈
               </a>
               <span aria-hidden>/</span>
-              <a href="#" className="hover:text-[var(--foreground)]">
+              <a
+                href="#components"
+                className="hover:text-[var(--foreground)]"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 프로젝트
               </a>
               <span aria-hidden>/</span>
@@ -1208,49 +1231,63 @@ export function DesignPlayground() {
             </h3>
             <div
               role="tablist"
+              aria-label="샘플 탭"
               className="mt-3 inline-flex rounded-lg border border-[var(--border)] p-0.5"
             >
-              <span
-                role="tab"
-                aria-selected
-                className="rounded-md bg-[var(--accent)]/20 px-3 py-1.5 text-xs font-medium text-[var(--accent)]"
-              >
-                개요
-              </span>
-              <button
-                type="button"
-                role="tab"
-                className="rounded-md px-3 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
-              >
-                멤버
-              </button>
-              <button
-                type="button"
-                role="tab"
-                className="rounded-md px-3 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
-              >
-                빌링
-              </button>
+              {(
+                [
+                  ["overview", "개요"],
+                  ["members", "멤버"],
+                  ["billing", "빌링"],
+                ] as const
+              ).map(([id, label]) => {
+                const selected = galleryTab === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setGalleryTab(id)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
+                      selected
+                        ? "bg-[var(--accent)]/20 text-[var(--accent)]"
+                        : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
             <div className="mt-4 flex max-w-md rounded-lg bg-[var(--background)] p-1">
-              {(["월간", "연간"] as const).map((label, i) => (
+              {(
+                [
+                  { id: "month" as const, label: "월간" },
+                  { id: "year" as const, label: "연간", badge: "-17%" as const },
+                ] as const
+              ).map((item) => {
+                const badge = "badge" in item ? item.badge : undefined;
+                return (
                 <button
-                  key={label}
+                  key={item.id}
                   type="button"
-                  className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition ${
-                    i === 1
+                  onClick={() => setGalleryBilling(item.id)}
+                  className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
+                    galleryBilling === item.id
                       ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
                       : "text-[var(--muted)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {label}
-                  {i === 1 ? (
+                  {item.label}
+                  {badge && galleryBilling === item.id ? (
                     <span className="ml-1 text-[10px] text-emerald-400">
-                      -17%
+                      {badge}
                     </span>
                   ) : null}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -1291,11 +1328,18 @@ export function DesignPlayground() {
               </label>
               <label className="block text-sm sm:col-span-2">
                 <span className="mb-1 block text-[var(--muted)]">셀렉트</span>
-                <select className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]">
-                  <option>Starter</option>
-                  <option>Pro</option>
-                  <option>Enterprise</option>
+                <select
+                  value={demoPlan}
+                  onChange={(e) => setDemoPlan(e.target.value)}
+                  className="w-full cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+                >
+                  <option value="starter">Starter</option>
+                  <option value="pro">Pro</option>
+                  <option value="enterprise">Enterprise</option>
                 </select>
+                <p className="mt-1 text-xs text-[var(--accent)]">
+                  선택됨: {demoPlan}
+                </p>
               </label>
               <label className="block text-sm sm:col-span-2">
                 <span className="mb-1 block text-rose-300">에러 상태</span>
@@ -1324,12 +1368,12 @@ export function DesignPlayground() {
                   role="switch"
                   aria-checked={demoSwitch}
                   onClick={() => setDemoSwitch((v) => !v)}
-                  className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                  className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
                     demoSwitch ? "bg-[var(--accent)]" : "bg-[var(--muted)]/30"
                   }`}
                 >
                   <span
-                    className={`absolute top-1 size-5 rounded-full bg-[var(--background)] shadow transition ${
+                    className={`pointer-events-none absolute top-1 size-5 rounded-full bg-[var(--background)] shadow transition ${
                       demoSwitch ? "left-6" : "left-1"
                     }`}
                   />
@@ -1345,7 +1389,7 @@ export function DesignPlayground() {
                   onChange={(e) =>
                     setDemoChecks((c) => ({ ...c, agree: e.target.checked }))
                   }
-                  className="size-4 rounded border-[var(--border)] accent-[var(--accent)]"
+                  className="size-4 cursor-pointer rounded border-[var(--border)] accent-[var(--accent)]"
                 />
                 <span className="text-[var(--foreground)]">이용약관 동의</span>
               </label>
@@ -1356,7 +1400,7 @@ export function DesignPlayground() {
                   onChange={(e) =>
                     setDemoChecks((c) => ({ ...c, promo: e.target.checked }))
                   }
-                  className="size-4 rounded border-[var(--border)] accent-[var(--accent)]"
+                  className="size-4 cursor-pointer rounded border-[var(--border)] accent-[var(--accent)]"
                 />
                 <span className="text-[var(--foreground)]">프로모 메일 수신</span>
               </label>
@@ -1378,10 +1422,10 @@ export function DesignPlayground() {
                 >
                   <input
                     type="radio"
-                    name="demo-plan"
+                    name="design-poc-gallery-plan"
                     checked={demoRadio === id}
                     onChange={() => setDemoRadio(id)}
-                    className="size-4 border-[var(--border)] accent-[var(--accent)]"
+                    className="size-4 cursor-pointer border-[var(--border)] accent-[var(--accent)]"
                   />
                   <span className="text-[var(--foreground)]">{label}</span>
                 </label>
@@ -1502,7 +1546,20 @@ export function DesignPlayground() {
                   ].map(([name, role, status]) => (
                     <tr
                       key={name}
-                      className="text-[var(--foreground)] hover:bg-[var(--card)]/30"
+                      aria-selected={galleryTableRow === name}
+                      tabIndex={0}
+                      onClick={() => setGalleryTableRow(name)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setGalleryTableRow(name);
+                        }
+                      }}
+                      className={`cursor-pointer text-[var(--foreground)] transition focus-visible:bg-[var(--card)]/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--accent)] ${
+                        galleryTableRow === name
+                          ? "bg-[var(--accent)]/10 hover:bg-[var(--accent)]/15"
+                          : "hover:bg-[var(--card)]/30"
+                      }`}
                     >
                       <td className="px-4 py-2.5 font-medium">{name}</td>
                       <td className="px-4 py-2.5 text-[var(--muted)]">{role}</td>
@@ -1522,6 +1579,12 @@ export function DesignPlayground() {
                 </tbody>
               </table>
             </div>
+            <p className="mt-2 text-xs text-[var(--muted)]">
+              행을 클릭(또는 포커스 후 Enter)하면 선택이 바뀝니다. 현재:{" "}
+              <span className="font-medium text-[var(--accent)]">
+                {galleryTableRow}
+              </span>
+            </p>
           </div>
 
           {/* 스켈레톤 · 아코디언 */}
@@ -1555,7 +1618,8 @@ export function DesignPlayground() {
             <div className="mt-3 flex flex-wrap items-center gap-1">
               <button
                 type="button"
-                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+                onClick={() => setGalleryPage((p) => Math.max(1, p - 1))}
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
                 이전
               </button>
@@ -1563,8 +1627,9 @@ export function DesignPlayground() {
                 <button
                   key={n}
                   type="button"
-                  className={`min-w-8 rounded-lg px-2 py-1.5 text-xs font-medium ${
-                    n === 2
+                  onClick={() => setGalleryPage(n)}
+                  className={`min-w-8 cursor-pointer rounded-lg px-2 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
+                    galleryPage === n
                       ? "bg-[var(--accent)]/20 text-[var(--accent)]"
                       : "text-[var(--muted)] hover:bg-[var(--card)]/50 hover:text-[var(--foreground)]"
                   }`}
@@ -1574,10 +1639,14 @@ export function DesignPlayground() {
               ))}
               <button
                 type="button"
-                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+                onClick={() => setGalleryPage((p) => Math.min(5, p + 1))}
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
                 다음
               </button>
+              <span className="ml-2 text-xs text-[var(--muted)]">
+                페이지 {galleryPage}
+              </span>
             </div>
           </div>
         </div>
