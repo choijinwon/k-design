@@ -322,7 +322,110 @@ const OFFICIAL: { name: string; href: string }[] = [
   { name: "Nuxt UI", href: "https://ui.nuxt.com/" },
 ];
 
-type Screen = "mpa" | "dash" | "embed" | "material";
+type Screen =
+  | "mpa"
+  | "marketing"
+  | "dash"
+  | "data_viz"
+  | "forms_wizard"
+  | "docs_devportal"
+  | "mobile_pwa"
+  | "embed"
+  | "cbt_edu"
+  | "realtime_collab"
+  | "marketplace"
+  | "white_label"
+  | "a11y_public"
+  | "content_editorial"
+  | "material"
+  | "prototype_spike";
+
+const SCENARIO_OPTIONS: { group: string; id: Screen; label: string }[] = [
+  {
+    group: "채널 · 화면 형태",
+    id: "mpa",
+    label: "정적·MPA — 마크업 위주, 서버 템플릿",
+  },
+  {
+    group: "채널 · 화면 형태",
+    id: "marketing",
+    label: "마케팅·랜딩 — 전환, 히어로, 캠페인 페이지",
+  },
+  {
+    group: "채널 · 화면 형태",
+    id: "mobile_pwa",
+    label: "모바일·PWA — 터치·세이프에어리어·오프라인 고려",
+  },
+  {
+    group: "제품 · 밀도",
+    id: "dash",
+    label: "관리·백오피스 — 테이블·필터·폼 밀도 높음",
+  },
+  {
+    group: "제품 · 밀도",
+    id: "data_viz",
+    label: "데이터·모니터링 — 차트, 실시간 지표, 드릴다운",
+  },
+  {
+    group: "제품 · 밀도",
+    id: "forms_wizard",
+    label: "온보딩·위자드 — 단계 폼, 검증, 상태 보존",
+  },
+  {
+    group: "제품 · 밀도",
+    id: "content_editorial",
+    label: "콘텐츠·에디토리얼 — 롱폼, 카탈로그, 미디어 블록",
+  },
+  {
+    group: "개발자 · 지식",
+    id: "docs_devportal",
+    label: "문서·개발자 포털 — 검색, 코드블록, 버전 스위치",
+  },
+  {
+    group: "배포 · 임베드",
+    id: "embed",
+    label: "임베디드·Electron·웹뷰 — 번들·오프라인 제약",
+  },
+  {
+    group: "배포 · 임베드",
+    id: "prototype_spike",
+    label: "실험·스파이크 — 빠른 목업, 내구성보다 속도",
+  },
+  {
+    group: "도메인",
+    id: "cbt_edu",
+    label: "교육·CBT·LMS — 진도, 모듈, 접근성·오프라인",
+  },
+  {
+    group: "도메인",
+    id: "marketplace",
+    label: "마켓플레이스 — 멀티 벤더, 카트, 결제·정책 UI",
+  },
+  {
+    group: "도메인",
+    id: "realtime_collab",
+    label: "실시간 협업 — 동시 편집, 커서, 알림·채널",
+  },
+  {
+    group: "브랜딩 · 거버넌스",
+    id: "white_label",
+    label: "화이트라벨·멀티 테넌트 — 테마 스위치·토큰 주입",
+  },
+  {
+    group: "브랜딩 · 거버넌스",
+    id: "material",
+    label: "Material 톤 — M3 스펙·컴포넌트 규격 맞추기",
+  },
+  {
+    group: "브랜딩 · 거버넌스",
+    id: "a11y_public",
+    label: "접근성·공공 — 키보드, 대비, 고정 레이아웃 제약",
+  },
+];
+
+const SCENARIO_SUMMARY_LABEL: Record<Screen, string> = Object.fromEntries(
+  SCENARIO_OPTIONS.map((o) => [o.id, o.label.split(" — ")[0]?.trim() ?? o.label]),
+) as Record<Screen, string>;
 
 type CellTone = "good" | "ok" | "ref" | "bad";
 
@@ -352,26 +455,181 @@ function toneClasses(tone: CellTone, active: boolean): string {
 function scenarioBlurb(stack: (typeof STACKS)[number], screen: Screen): string {
   const isHtml = stack === "HTML";
   const isVueFamily = stack === "Vue" || stack === "Nuxt";
+  const isReactFamily = stack === "React" || stack === "Next.js";
+  const isNext = stack === "Next.js";
 
-  if (screen === "mpa" && isHtml) {
-    return "마크업 위주·정적 페이지라면 Bootstrap 또는 Bulma로 빠르게 골격을 잡는 편이 문서상 자연스럽습니다.";
+  switch (screen) {
+    case "mpa":
+      if (isHtml) {
+        return "마크업 위주·정적 배포라면 Bootstrap·Bulma·Tailwind 중 팀 속도에 맞는 한 가지로 그리드를 고정하고, JS는 점진적으로만 붙입니다.";
+      }
+      if (isVueFamily) {
+        return "Vue/Nuxt도 SSG·서버 렌더 패턴으로 정적 층을 두면 MPA에 가깝게 운용할 수 있습니다. Nuxt UI·Tailwind가 흔한 조합입니다.";
+      }
+      if (isReactFamily) {
+        return "React/Next라도 서버·정적 경로를 우선하면 MPA 친화적입니다. 하이드레이션 범위를 줄일수록 뷰어·문서에 유리합니다.";
+      }
+      return "정적 층을 두고 상호작용은 최소화하는 쪽이 번들·캐시·오프라인 정책에 유리합니다. 매트릭스에서 스택별 UI 키트를 다시 확인하세요.";
+
+    case "marketing":
+      if (isHtml) {
+        return "캠페인 랜딩은 Tailwind·Bootstrap로 섹션을 빠르게 잡고, 폼·UTM·개인화는 필요한 블록만 작은 스크립트로 붙이는 편이 안전합니다.";
+      }
+      if (isNext) {
+        return "Next.js는 SEO·OG·성능·실험 플래그와 궁합이 좋습니다. shadcn으로 커스텀 톤을, 일정이 촉박하면 MUI 블록을 일부 혼용해도 됩니다.";
+      }
+      if (isReactFamily) {
+        return "CRA/Vite SPA 랜딩은 메타·프리렌더를 별도 설계해야 합니다. 가능하면 Next·Remix류 메타·라우팅 툴링을 우선 검토하세요.";
+      }
+      if (isVueFamily) {
+        return "Nuxt는 콘텐츠·SEO에 익숙한 팀에 유리합니다. Tailwind + Nuxt UI 또는 팀 표준 컴포넌트로 히어로·요금·FAQ 블록을 모듈화하세요.";
+      }
+      return "전환·실험을 반복한다면 토큰·섹션 컴포넌트를 먼저 고정하고, 디자인 키트는 한 열로 통일하는 편이 A/B에 유리합니다.";
+
+    case "dash":
+      if (isHtml) {
+        return "순정 HTML만으로 고밀도 백오피스는 한계가 큽니다. 테이블·필터는 React/Vue 앱 셸 안에서 구현하는 전제를 권합니다.";
+      }
+      if (isReactFamily) {
+        return "테이블·필터·폼 밀도가 높으면 MUI·Ant로 시간을 줄이고, 브랜딩이 강하면 Tailwind+shadcn로 그리드·히어로만 커스텀하는 혼합도 흔합니다.";
+      }
+      if (isVueFamily) {
+        return "Vue/Nuxt 백오피스는 Nuxt UI·Vuetify·Ant Design Vue 등을 비교하세요. 데이터 테이블 플러그인 생태가 선택을 좌우합니다.";
+      }
+      return "대시보드는 상태·권한·테이블 가상화까지 묶이므로 ‘한 세트로 쓸 컴포넌트’를 먼저 정하는 것이 재작업을 줄입니다.";
+
+    case "data_viz":
+      if (isReactFamily) {
+        return "차트·대시보드는 차트 라이브러리와 MUI/Ant 레이아웃·폼을 분리해 번들을 관리합니다. 다크 테마 토큰을 먼저 잡으세요.";
+      }
+      if (isVueFamily) {
+        return "Vue는 차트 래퍼 생태가 성숙합니다. 실시간 소켓 레이어와 차트 업데이트 주기를 UI 키트와 별도로 설계하세요.";
+      }
+      if (isHtml) {
+        return "정적 HTML만으로는 실시간·대량 포인트 렌더에 한계가 있습니다. 차트 영역만 SPA 또는 Web Worker로 분리하는 편이 낫습니다.";
+      }
+      return "모니터링 UI는 색(경고등)·밀도·시간축이 브랜드보다 기능 우선입니다. 접근성 대비색을 WCAG 기준으로 따로 검증하세요.";
+
+    case "forms_wizard":
+      if (isReactFamily) {
+        return "다단계 폼은 검증 스키마·에러 요약 UX가 핵심입니다. MUI/Ant Form+RHF 또는 shadcn+커스텀 중 팀 경험에 맞게 고릅니다.";
+      }
+      if (isVueFamily) {
+        return "Vue는 검증·스텝퍼 라이브러리를 먼저 정하고, 스텝 상태와 라우터 동기화를 설계에 포함하세요.";
+      }
+      if (isHtml) {
+        return "위자드를 순정 폼만으로 만들면 접근성·뒤로가기·상태 복원이 어렵습니다. 최소 스펙이면 HTMX·경량 프레임워크를 검토하세요.";
+      }
+      return "온보딩은 이탈 구간 로그와 연결됩니다. 필드·스텝 수를 줄이는 정보 설계가 키트 선택보다 먼저일 때가 많습니다.";
+
+    case "docs_devportal":
+      if (isNext) {
+        return "문서·블로그는 MDX·검색을 염두에 두세요. 다크 기본·코드 하이라이트 테마가 브랜드 토큰과 충돌하지 않게 맞춥니다.";
+      }
+      if (isVueFamily) {
+        return "Nuxt Content·VitePress류는 사이드바·버전 스위치가 수월합니다. Tailwind로 코드블록 대비를 통일하세요.";
+      }
+      if (isHtml) {
+        return "정적 문서는 11ty·템플릿만으로도 충분한 경우가 많습니다. 긴 표·앵커·인쇄 스타일 요구를 먼저 정합니다.";
+      }
+      if (isReactFamily) {
+        return "Docusaurus·Starlight 등 문서 전용 스택이 있으면 내비·검색·i18n을 재발명하지 않아도 됩니다.";
+      }
+      return "개발자 포털은 API 키·샌드박스·쿼터 UI까지 포함할 수 있습니다. ‘문서 읽기’와 ‘콘솔 작업’ 화면을 설계 단계에서 분리하세요.";
+
+    case "mobile_pwa":
+      if (isHtml) {
+        return "모바일 퍼스트 정적 페이지는 터치 타깃·뷰포트·스크롤 락을 CSS 위주로 잡고, PWA는 매니페스트·서비스워커로 보완합니다.";
+      }
+      if (isReactFamily) {
+        return "모바일 웹앱은 라우터 전환·세이프 영역(padding)을 키트 기본값과 맞춰야 합니다. 토큰에 터치 최소 크기를 명시하세요.";
+      }
+      if (isVueFamily) {
+        return "Nuxt PWA 모듈·하이브리드 앱 연계를 염두에 두면 스토어·웹 배포를 같이 설계할 수 있습니다. Bottom sheet 지원 여부를 확인하세요.";
+      }
+      return "모바일은 번들·이미지·폰트 예산이 곧 UX입니다. UI 키트 전체보다 실제 화면만 트리 셰이킹하는 전략을 우선하세요.";
+
+    case "embed":
+      return "Electron·웹뷰·오프라인 패키지는 번들·CSP·로컬 파일 프로토콜 제약이 있습니다. Bulma·얇은 Tailwind 또는 소수 컴포넌트만 번들하는 전략을 검토하세요.";
+
+    case "prototype_spike":
+      return "스파이크는 Tailwind+최소 컴포넌트나 키트 프리셋만 써서 속도를 내고, 검증 후 토큰·폴더는 런칭용으로 재정리할 계획을 세웁니다.";
+
+    case "cbt_edu":
+      if (isReactFamily) {
+        return "CBT·LMS는 모듈·진도·퀴즈·오프라인 동기가 겹칩니다. 키보드·스크린리더 경로를 먼저 확정하고, Electron이면 로컬 저장·동기 정책을 UI와 분리하세요.";
+      }
+      if (isVueFamily) {
+        return "Vue/Nuxt로도 동일하게 진도·평가 상태를 설계하고, 오프라인이면 서비스워커·로컬 캐시 범위를 화면 단위로 제한하세요.";
+      }
+      if (isHtml) {
+        return "순정 HTML만으로 인터랙티브 CBT는 한계가 큽니다. 최소한 퀴즈·분기는 경량 스크립트 또는 웹컴포넌트 셸을 검토하세요.";
+      }
+      return "교육 도메인은 접근성·국제화·콘텐츠 갱신 워크플로가 UI 키트와 동급 과제입니다. 역할 기반 내비를 초기에 고정하세요.";
+
+    case "marketplace":
+      if (isReactFamily) {
+        return "마켓플레이스는 카드 그리드·필터·신뢰 UI(리뷰·정책)가 중심입니다. Ant/MUI의 리스트·태그·steps와 결제SDK의 모달 흐름을 맞춰야 합니다.";
+      }
+      if (isVueFamily) {
+        return "Vue 쇼핑몰 패턴도 유사합니다. 다국가·세금·배송 상태 문구는 디자인 시스템 문자열 테이블로 빼 두는 편이 안전합니다.";
+      }
+      return "멀티 벤더면 대시보드(판매자)와 스토어프론트(구매자) UI 키트를 분리해 번들을 나누는 전략을 검토하세요.";
+
+    case "realtime_collab":
+      if (isReactFamily) {
+        return "실시간 편집은 리스트 가상화·낙관적 UI·충돌 메시지 복구가 필요합니다. Radix/shadcn 대화상자·토스트와 소켓 레이어를 분리 설계하세요.";
+      }
+      if (isVueFamily) {
+        return "Vue에서도 동일하게 상태 소스(스토어·composable)와 전송 계층을 분리합니다. Presence 아바타는 UI 키트 배지·툴팁과 조합합니다.";
+      }
+      return "협업 제품은 ‘누가 지금 이 블록을 보는지’ 같은 메타 UI가 추가됩니다. 키트의 오버레이·드롭다운 z-index 정책을 초기에 테스트하세요.";
+
+    case "white_label":
+      if (isReactFamily) {
+        return "멀티 테넌트는 CSS 변수·런타임 테마 주입이 핵심입니다. MUI·Ant는 테마 API로, shadcn은 토큰 파일 스위치로 대응하는 경우가 많습니다.";
+      }
+      if (isVueFamily) {
+        return "Vue는 루트 provide/inject나 CSS 변수로 테넌트 브랜드를 오버레이합니다. 기본 컴포넌트는 중립 토큰에만 의존하게 두세요.";
+      }
+      if (isHtml) {
+        return "정적 멀티사이트는 빌드 타임 테마 치환이 단순합니다. 런타임 스위치가 필요하면 작은 스크립트로 :root 변수만 바꾸는 패턴도 가능합니다.";
+      }
+      return "화이트라벨은 로고·포인트색 외에 버튼 모서리·폰트까지 고객사 가이드를 수용해야 합니다. 토큰 계층을 문서화해 두세요.";
+
+    case "a11y_public":
+      if (isHtml) {
+        return "공공·행정 HTML은 의미 마크업·키보드 포커스 순서·대비가 법·가이드와 직결됩니다. 컴포넌트 키트보다 감사 체크리스트를 먼저 고릅니다.";
+      }
+      if (isReactFamily) {
+        return "React는 포커스 트랩·라이브 리전·모달 시퀀스를 Radix 등에서 보완합니다. 디자인 토큰의 포커스 링 색을 키보드 전용으로 분리하세요.";
+      }
+      if (isVueFamily) {
+        return "Vue도 동일하게 헤드리스 패턴·ARIA 속성 바인딩을 점검합니다. 색만으로 상태를 구분하지 않는 규칙을 컴포넌트 가이드에 박아 두세요.";
+      }
+      return "공공 접근성은 WCAG 등급·감사 범위가 계약에 들어가기도 합니다. 컴포넌트 단위 스냅 테스트보다 실사용자 시나리오 E2E가 설득력이 큽니다.";
+
+    case "content_editorial":
+      if (isNext) {
+        return "에디토리얼·미디어 사이트는 타이포 스케일·그리드·이미지 lazy·CLS가 핵심입니다. shadcn·Tailwind로 조판 유틸을 만들고 본문은 prose 클래스로 통일하세요.";
+      }
+      if (isVueFamily) {
+        return "Nuxt는 콘텐츠 라우팅·이미지 최적화 모듈을 활용하세요. 카드 + 리스트 레이아웃 반복을 디자인 토큰으로만 바꿀 수 있게 컴포넌트화합니다.";
+      }
+      if (isHtml) {
+        return "롱폼 정적 사이트는 읽기 폭·행간·제목 위계만 잡아도 품질이 올라갑니다. 인쇄 CSS까지 요구되는지 확인하세요.";
+      }
+      if (isReactFamily) {
+        return "React 블로그·뉴스룸은 리치 텍스트·임베드·광고 슬롯까지 고려하면 레이아웃 시프트가 생깁니다. 슬롯 높이 예약이 우선입니다.";
+      }
+      return "콘텐츠 제품은 검색·태그·관련 글 추천이 내비게이션과 경쟁합니다. 정보 구조를 먼저 고정한 뒤 키트를 고르세요.";
+
+    case "material":
+      return "Material 룩은 M3 문서로 토큰·모션·접근성을 맞추고, 구현은 MUI·플랫폼 컴포넌트·자체 컴포넌트 중에서 고릅니다. ‘M3’ 자체는 npm 한 패키지가 아닙니다.";
+
+    default:
+      return "스택에 맞는 열을 매트릭스에서 확인하고, 팀이 익숙한 키트를 번들·중복 측면에서 한 번 더 짚으면 됩니다.";
   }
-  if (screen === "dash" && (stack === "React" || stack === "Next.js")) {
-    return "관리·테이블 밀도가 크면 MUI 또는 Ant Design으로 시간을 줄이고, 커스텀 소유권이 중요하면 Tailwind + shadcn/ui 조합을 검토합니다.";
-  }
-  if (screen === "dash" && isVueFamily) {
-    return "Vue/Nuxt는 Tailwind + Nuxt UI 등 Vue 생태 키트를 우선하고, Ant는 Ant Design Vue 등 별도 패키지로 분기합니다.";
-  }
-  if (screen === "embed") {
-    return "Electron·웹뷰·CBT 뷰어 등은 번들 제약이 있으면 유틸리티 CSS + 얇은 컴포넌트(Bulma만, 또는 Tailwind+소수 컴포넌트)를 후보에 둡니다.";
-  }
-  if (screen === "material") {
-    return "“Material 룩”은 M3 문서로 토큰·접근성을 맞추고, 구현은 MUI·플랫폼 컴포넌트·자체 컴포넌트 중에서 고릅니다. M3 행 자체는 npm 한 방 설치가 아닙니다.";
-  }
-  if (isHtml) {
-    return "정적 HTML에서는 Tailwind·Bootstrap·Bulma가 문서상 무난합니다. React 전용 라이브러리(MUI·shadcn 등)는 피합니다.";
-  }
-  return "스택에 맞는 열을 매트릭스에서 확인하고, 팀이 이미 익숙한 키트를 번들·중복 측면에서 한 번 더 짚으면 됩니다.";
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
@@ -444,13 +702,7 @@ export function DesignPlayground() {
 
   const summaryText = useMemo(() => {
     const lib = UI_LIBS.find((x) => x.id === libId)?.label ?? libId;
-    const screenLabel =
-      {
-        mpa: "정적·MPA",
-        dash: "대시보드·데이터 밀도",
-        embed: "임베디드·뷰어",
-        material: "Material 톤",
-      }[screen] ?? screen;
+    const screenLabel = SCENARIO_SUMMARY_LABEL[screen] ?? screen;
     return [
       "K-Design Studio · UI 선택 메모",
       `샘플 팔레트: ${currentPreset.label} (${currentPreset.tagline})`,
@@ -1031,23 +1283,34 @@ export function DesignPlayground() {
         id="scenario"
         className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
       >
-        <h2 className="text-lg font-semibold">시나리오 한 줄</h2>
+        <h2 className="text-lg font-semibold">시나리오 가이드</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          문서의 「선택 가이드」를 짧게 재구성했습니다.
+          채널·제품 밀도·도메인·거버넌스 등{" "}
+          {SCENARIO_OPTIONS.length}가지 시나리오를 골라, 스택별로 한 줄씩
+          정리합니다. ui-frameworks.md 「선택 가이드」와 함께 보세요.
         </p>
         <label className="mt-6 block text-sm">
           <span className="mb-1 block font-medium text-[var(--foreground)]">
-            화면·제품 성격
+            시나리오
           </span>
           <select
             value={screen}
             onChange={(e) => setScreen(e.target.value as Screen)}
-            className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
+            className="w-full max-w-2xl rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]"
           >
-            <option value="mpa">정적·마크업 위주 (MPA 성향)</option>
-            <option value="dash">관리·대시보드·데이터 밀도</option>
-            <option value="embed">임베디드·Electron·가벼운 뷰어</option>
-            <option value="material">Material 토큰·룩앤필 중시</option>
+            {(
+              [...new Set(SCENARIO_OPTIONS.map((o) => o.group))] as string[]
+            ).map((group) => (
+              <optgroup key={group} label={group}>
+                {SCENARIO_OPTIONS.filter((o) => o.group === group).map(
+                  (o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.label}
+                    </option>
+                  ),
+                )}
+              </optgroup>
+            ))}
           </select>
         </label>
         <p className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-4 text-sm leading-relaxed text-[var(--muted)]">
