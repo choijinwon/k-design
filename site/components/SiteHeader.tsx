@@ -9,7 +9,7 @@ const nav = [
   { href: "/#services", label: "서비스" },
   { href: "/#pricing", label: "가격" },
   { href: "/sample", label: "Harness 샘플" },
-  { href: "/poc", label: "CBT POC" },
+  { href: "/poc", label: "POC" },
 ];
 
 export function SiteHeader() {
@@ -27,7 +27,7 @@ export function SiteHeader() {
               href={item.href}
               className={`transition hover:text-[var(--foreground)] ${
                 (item.href === "/sample" && pathname === "/sample") ||
-                (item.href === "/poc" && pathname === "/poc")
+                (item.href === "/poc" && pathname.startsWith("/poc"))
                   ? "text-[var(--accent)]"
                   : ""
               }`}
