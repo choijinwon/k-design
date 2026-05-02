@@ -51,6 +51,12 @@ export default function Home() {
               GitHub
             </a>
             <Link
+              href="/poc"
+              className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+            >
+              CBT POC
+            </Link>
+            <Link
               href="/sample"
               className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
             >
