@@ -680,6 +680,9 @@ export function DesignPlayground() {
   const [screen, setScreen] = useState<Screen>("dash");
   const [presetId, setPresetId] = useState<string>(DESIGN_PRESETS[0].id);
   const [copied, setCopied] = useState<string | null>(null);
+  const [demoSwitch, setDemoSwitch] = useState(true);
+  const [demoRadio, setDemoRadio] = useState<"a" | "b" | "c">("b");
+  const [demoChecks, setDemoChecks] = useState({ agree: true, promo: false });
 
   const stack = STACKS[stackIdx];
   const cell = MATRIX[libId][stackIdx];
@@ -1090,65 +1093,496 @@ export function DesignPlayground() {
         id="components"
         className="mb-10 scroll-mt-24 rounded-2xl border border-[var(--border)] bg-[var(--card)]/40 p-6 sm:p-8"
       >
-        <h2 className="text-lg font-semibold">컴포넌트 스트립 (사이트 테마)</h2>
+        <h2 className="text-lg font-semibold">컴포넌트 갤러리 (사이트 테마)</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          실제 납품 페이지와 동일한 CSS 변수를 씁니다.
+          납품 시 자주 쓰는 패턴을 CSS 변수 기준으로 묶었습니다. 라이브러리
+          없이 마크업·상태 패턴만 참고용으로 보시면 됩니다.
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[#041016] transition hover:brightness-110"
-          >
-            Primary
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
-          >
-            Outline
-          </button>
-          <button
-            type="button"
-            disabled
-            className="rounded-lg border border-[var(--border)]/60 px-4 py-2 text-sm text-[var(--muted)] opacity-60"
-          >
-            Disabled
-          </button>
-          <span className="rounded-md border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-2 py-1 text-xs font-medium text-[var(--accent)]">
-            Badge
-          </span>
-          <span className="rounded-md bg-[var(--muted)]/20 px-2 py-1 text-xs text-[var(--muted)]">
-            Muted
-          </span>
-          <input
-            type="text"
-            placeholder="입력 필드"
-            className="min-w-[11rem] rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
-          />
+
+        <div className="mt-8 space-y-10">
+          {/* 버튼 · 링크 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              버튼 · 링크
+            </h3>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[#041016] transition hover:brightness-110"
+              >
+                Primary
+              </button>
+              <button
+                type="button"
+                className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+              >
+                Secondary
+              </button>
+              <button
+                type="button"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/10"
+              >
+                Ghost
+              </button>
+              <button
+                type="button"
+                className="rounded-lg border border-rose-400/50 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/20"
+              >
+                Destructive
+              </button>
+              <button
+                type="button"
+                disabled
+                className="rounded-lg border border-[var(--border)]/60 px-4 py-2 text-sm text-[var(--muted)] opacity-60"
+              >
+                Disabled
+              </button>
+              <button
+                type="button"
+                className="inline-flex size-9 items-center justify-center rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+                aria-label="아이콘 자리"
+              >
+                +
+              </button>
+              <a
+                href="#components"
+                className="text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+              >
+                텍스트 링크
+              </a>
+            </div>
+          </div>
+
+          {/* 배지 · 칩 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              배지 · 칩
+            </h3>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-md border border-[var(--accent)]/40 bg-[var(--accent)]/15 px-2 py-1 text-xs font-medium text-[var(--accent)]">
+                Accent
+              </span>
+              <span className="rounded-md bg-[var(--muted)]/20 px-2 py-1 text-xs text-[var(--muted)]">
+                Muted
+              </span>
+              <span className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-[var(--foreground)]">
+                Outline
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--card)]/80 py-1 pl-3 pr-1 text-xs text-[var(--foreground)]">
+                필터
+                <span className="rounded-full bg-[var(--muted)]/25 px-1.5 text-[10px] text-[var(--muted)]">
+                  ×
+                </span>
+              </span>
+              <span className="rounded text-[10px] font-medium uppercase tracking-wide text-emerald-400">
+                Live
+              </span>
+            </div>
+          </div>
+
+          {/* 브레드크럼 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              브레드크럼
+            </h3>
+            <nav
+              aria-label="breadcrumb"
+              className="mt-3 flex flex-wrap items-center gap-1 text-sm text-[var(--muted)]"
+            >
+              <a href="#" className="text-[var(--accent)] hover:underline">
+                홈
+              </a>
+              <span aria-hidden>/</span>
+              <a href="#" className="hover:text-[var(--foreground)]">
+                프로젝트
+              </a>
+              <span aria-hidden>/</span>
+              <span className="text-[var(--foreground)]">설정</span>
+            </nav>
+          </div>
+
+          {/* 탭 · 세그먼트 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              탭 · 세그먼트
+            </h3>
+            <div
+              role="tablist"
+              className="mt-3 inline-flex rounded-lg border border-[var(--border)] p-0.5"
+            >
+              <span
+                role="tab"
+                aria-selected
+                className="rounded-md bg-[var(--accent)]/20 px-3 py-1.5 text-xs font-medium text-[var(--accent)]"
+              >
+                개요
+              </span>
+              <button
+                type="button"
+                role="tab"
+                className="rounded-md px-3 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+              >
+                멤버
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className="rounded-md px-3 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+              >
+                빌링
+              </button>
+            </div>
+            <div className="mt-4 flex max-w-md rounded-lg bg-[var(--background)] p-1">
+              {(["월간", "연간"] as const).map((label, i) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition ${
+                    i === 1
+                      ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
+                      : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {label}
+                  {i === 1 ? (
+                    <span className="ml-1 text-[10px] text-emerald-400">
+                      -17%
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 폼 필드 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              폼 필드
+            </h3>
+            <div className="mt-3 grid max-w-xl gap-4 sm:grid-cols-2">
+              <label className="block text-sm">
+                <span className="mb-1 block text-[var(--muted)]">텍스트</span>
+                <input
+                  type="text"
+                  placeholder="이름"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block text-[var(--muted)]">검색</span>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 text-[var(--muted)] -translate-y-1/2">
+                    ⌕
+                  </span>
+                  <input
+                    type="search"
+                    placeholder="검색…"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
+                  />
+                </div>
+              </label>
+              <label className="block text-sm sm:col-span-2">
+                <span className="mb-1 block text-[var(--muted)]">텍스트영역</span>
+                <textarea
+                  rows={3}
+                  placeholder="설명을 입력하세요."
+                  className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
+                />
+              </label>
+              <label className="block text-sm sm:col-span-2">
+                <span className="mb-1 block text-[var(--muted)]">셀렉트</span>
+                <select className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]">
+                  <option>Starter</option>
+                  <option>Pro</option>
+                  <option>Enterprise</option>
+                </select>
+              </label>
+              <label className="block text-sm sm:col-span-2">
+                <span className="mb-1 block text-rose-300">에러 상태</span>
+                <input
+                  type="email"
+                  aria-invalid
+                  defaultValue="not-an-email"
+                  className="w-full rounded-lg border border-rose-400/60 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-rose-400/50"
+                />
+                <p className="mt-1 text-xs text-rose-300">
+                  올바른 이메일 형식이 아닙니다.
+                </p>
+              </label>
+            </div>
+          </div>
+
+          {/* 토글 · 체크 · 라디오 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              토글 · 체크 · 라디오
+            </h3>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={demoSwitch}
+                  onClick={() => setDemoSwitch((v) => !v)}
+                  className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                    demoSwitch ? "bg-[var(--accent)]" : "bg-[var(--muted)]/30"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 size-5 rounded-full bg-[var(--background)] shadow transition ${
+                      demoSwitch ? "left-6" : "left-1"
+                    }`}
+                  />
+                </button>
+                <span className="text-sm text-[var(--foreground)]">
+                  푸시 알림 {demoSwitch ? "켜짐" : "꺼짐"}
+                </span>
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={demoChecks.agree}
+                  onChange={(e) =>
+                    setDemoChecks((c) => ({ ...c, agree: e.target.checked }))
+                  }
+                  className="size-4 rounded border-[var(--border)] accent-[var(--accent)]"
+                />
+                <span className="text-[var(--foreground)]">이용약관 동의</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={demoChecks.promo}
+                  onChange={(e) =>
+                    setDemoChecks((c) => ({ ...c, promo: e.target.checked }))
+                  }
+                  className="size-4 rounded border-[var(--border)] accent-[var(--accent)]"
+                />
+                <span className="text-[var(--foreground)]">프로모 메일 수신</span>
+              </label>
+            </div>
+            <fieldset className="mt-4 space-y-2 border-none p-0">
+              <legend className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                플랜
+              </legend>
+              {(
+                [
+                  ["a", "무료"],
+                  ["b", "팀"],
+                  ["c", "엔터프라이즈"],
+                ] as const
+              ).map(([id, label]) => (
+                <label
+                  key={id}
+                  className="flex cursor-pointer items-center gap-2 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="demo-plan"
+                    checked={demoRadio === id}
+                    onChange={() => setDemoRadio(id)}
+                    className="size-4 border-[var(--border)] accent-[var(--accent)]"
+                  />
+                  <span className="text-[var(--foreground)]">{label}</span>
+                </label>
+              ))}
+            </fieldset>
+          </div>
+
+          {/* 피드백 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              피드백 · 상태
+            </h3>
+            <div className="mt-3 space-y-3">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--accent)]/10 px-4 py-3 text-sm text-[var(--foreground)]">
+                <strong className="text-[var(--accent)]">정보</strong>
+                {" — "}배포가 큐에 등록되었습니다.
+              </div>
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+                <strong>성공</strong>
+                {" — "}저장이 완료되었습니다.
+              </div>
+              <div className="rounded-lg border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                <strong>경고</strong>
+                {" — "}쿼터 80%에 도달했습니다.
+              </div>
+              <div className="rounded-lg border border-rose-500/35 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                <strong>오류</strong>
+                {" — "}결제 수단을 확인해 주세요.
+              </div>
+              <div className="flex items-center gap-3">
+                <div
+                  className="size-5 animate-spin rounded-full border-2 border-[var(--border)] border-t-[var(--accent)]"
+                  aria-hidden
+                />
+                <span className="text-sm text-[var(--muted)]">로딩 중…</span>
+                <div
+                  className="h-2 flex-1 max-w-xs overflow-hidden rounded-full bg-[var(--border)]"
+                  role="progressbar"
+                  aria-valuenow={66}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full rounded-full bg-[var(--accent)] transition-all"
+                    style={{ width: "66%" }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 카드 · 리스트 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              카드 · 리스트
+            </h3>
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--background)]/60 p-4">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-sm font-semibold text-[var(--accent)]"
+                    aria-hidden
+                  >
+                    JD
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-[var(--foreground)]">
+                      Jane Doe
+                    </p>
+                    <p className="text-xs text-[var(--muted)]">Product · 서울</p>
+                    <p className="mt-2 text-sm text-[var(--muted)]">
+                      마지막 활동 2시간 전
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="mt-4 w-full rounded-lg border border-[var(--border)] py-2 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)]/50"
+                >
+                  프로필 보기
+                </button>
+              </div>
+              <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--background)]/40">
+                {["알림 설정", "API 키", "감사 로그"].map((item) => (
+                  <li key={item}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between px-4 py-3 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--card)]/50"
+                    >
+                      {item}
+                      <span className="text-[var(--muted)]">›</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* 테이블 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              테이블 (밀도 샘플)
+            </h3>
+            <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border)]">
+              <table className="w-full min-w-[28rem] text-left text-sm">
+                <thead className="border-b border-[var(--border)] bg-[var(--card)]/50 text-xs uppercase tracking-wide text-[var(--muted)]">
+                  <tr>
+                    <th className="px-4 py-2 font-medium">이름</th>
+                    <th className="px-4 py-2 font-medium">역할</th>
+                    <th className="px-4 py-2 font-medium text-right">상태</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {[
+                    ["김민수", "Admin", "활성"],
+                    ["Lee", "Editor", "초대됨"],
+                    ["Park", "Viewer", "활성"],
+                  ].map(([name, role, status]) => (
+                    <tr
+                      key={name}
+                      className="text-[var(--foreground)] hover:bg-[var(--card)]/30"
+                    >
+                      <td className="px-4 py-2.5 font-medium">{name}</td>
+                      <td className="px-4 py-2.5 text-[var(--muted)]">{role}</td>
+                      <td className="px-4 py-2.5 text-right">
+                        <span
+                          className={
+                            status === "활성"
+                              ? "text-emerald-400"
+                              : "text-amber-300"
+                          }
+                        >
+                          {status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 스켈레톤 · 아코디언 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              스켈레톤 · 접기
+            </h3>
+            <div className="mt-3 flex flex-col gap-4 md:flex-row">
+              <div className="flex-1 space-y-2 rounded-xl border border-[var(--border)] p-4">
+                <div className="h-4 w-3/4 max-w-[12rem] animate-pulse rounded bg-[var(--muted)]/25" />
+                <div className="h-3 w-full max-w-md animate-pulse rounded bg-[var(--muted)]/15" />
+                <div className="h-3 w-5/6 max-w-sm animate-pulse rounded bg-[var(--muted)]/15" />
+              </div>
+              <details className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)]/40 px-4 py-2">
+                <summary className="cursor-pointer py-2 text-sm font-medium text-[var(--foreground)]">
+                  자주 묻는 질문 (native details)
+                </summary>
+                <p className="border-t border-[var(--border)] pb-3 pt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  브라우저 기본 접기/펼치기입니다. 키보드 포커스만 별도로 다듬으면
+                  접근성 요구에 맞출 수 있습니다.
+                </p>
+              </details>
+            </div>
+          </div>
+
+          {/* 페이지네이션 */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              페이지네이션
+            </h3>
+            <div className="mt-3 flex flex-wrap items-center gap-1">
+              <button
+                type="button"
+                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+              >
+                이전
+              </button>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`min-w-8 rounded-lg px-2 py-1.5 text-xs font-medium ${
+                    n === 2
+                      ? "bg-[var(--accent)]/20 text-[var(--accent)]"
+                      : "text-[var(--muted)] hover:bg-[var(--card)]/50 hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs text-[var(--muted)] transition hover:text-[var(--foreground)]"
+              >
+                다음
+              </button>
+            </div>
+          </div>
         </div>
-        <div
-          role="tablist"
-          className="mt-6 inline-flex rounded-lg border border-[var(--border)] p-0.5"
-        >
-          <span
-            role="tab"
-            aria-selected
-            className="rounded-md bg-[var(--accent)]/20 px-3 py-1.5 text-xs font-medium text-[var(--accent)]"
-          >
-            탭 A
-          </span>
-          <span
-            role="tab"
-            className="px-3 py-1.5 text-xs text-[var(--muted)]"
-          >
-            탭 B
-          </span>
-        </div>
-        <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--accent)]/10 px-4 py-3 text-sm text-[var(--foreground)]">
-          <strong className="text-[var(--accent)]">알림</strong>
-          {" — "}인라인 알림·배너 톤 샘플입니다.
-        </div>
-        <div className="mt-6 space-y-1 border-t border-[var(--border)] pt-6">
+
+        <div className="mt-10 space-y-1 border-t border-[var(--border)] pt-8">
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
             타이포 스케일
           </p>
