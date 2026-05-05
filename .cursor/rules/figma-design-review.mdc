@@ -1,0 +1,42 @@
+---
+description: Review Figma selections against k-design tokens, components, accessibility, and Next.js/Tailwind implementation constraints.
+globs: "{site/**/*.{ts,tsx,css,md},monetization/**/*.md}"
+alwaysApply: false
+---
+
+# Figma Design Review
+
+Use this rule when reviewing a Figma frame, section, component, or visual spec for `k-design`.
+
+## Required Flow
+
+- Connect to Figma with `user-TalkToFigma` before reviewing live designs: `join_channel`, `get_selection`, `read_my_design`, then `get_styles` and `get_local_components` when available.
+- Treat `site/app/globals.css` as the code-side token source of truth. The core tokens are `--background`, `--foreground`, `--muted`, `--card`, `--border`, `--accent`, and `--accent-dim`.
+- Check existing implementation patterns in `site/components/`, `site/components/poc/DesignPlayground.tsx`, `site/components/poc/DesignSystemLiveScreen.tsx`, and `site/components/poc/scenario-screen.ts` before suggesting new UI patterns.
+- Use the project stack as the implementation target: Next.js App Router, React 19, Tailwind v4, CSS variables, and the `@/*` import alias from `site/`.
+
+## Review Rubric
+
+- Token fit: flag role-equivalent Figma colors, radii, or text styles that bypass existing tokens or would require new token decisions.
+- Accessibility: check contrast, focus visibility, keyboard order, labels, non-color state indicators, and 44px-ish touch targets for interactive controls.
+- Korean UI fit: verify `Noto_Sans_KR` compatibility, text expansion, line height, and mobile wrapping for Korean labels and copy.
+- Component reuse: prefer existing `site/components` and POC components; do not recommend a new UI library unless the design cannot be expressed with the current stack.
+- Scenario fit: map the design to existing scenarios such as `marketing`, `dash`, `forms_wizard`, `docs_devportal`, `mobile_pwa`, `cbt_edu`, or `a11y_public` and review against that context.
+
+## Output Format
+
+Return findings in this order:
+
+1. `Critical` for blockers or severe accessibility issues.
+2. `Should Fix` for launch-quality issues like token drift, layout breakage, or duplicated component patterns.
+3. `Nice to Have` for polish and documentation improvements.
+4. `Questions` for product, brand, or technical intent that cannot be inferred.
+
+Each finding should include the impact, the design/code evidence, and a practical fix direction. If Figma data is incomplete, state the reviewed scope instead of guessing.
+
+## Manual Validation
+
+- For the first review run, ask the user to select a small Figma target such as a button, card, or landing section.
+- Confirm the reviewed scope, assumed scenario, and whether Figma styles/local components were available.
+- Ensure the report includes at least token fit, accessibility, and implementation fit checks.
+- If no issues are found, say that clearly and list any residual risk from incomplete Figma data or untested responsive states.

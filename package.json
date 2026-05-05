@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix site",
+    "design": "npm run design --prefix site",
     "dev:design": "npm run dev:design --prefix site",
     "build": "npm run build --prefix site",
     "start": "npm run start --prefix site"

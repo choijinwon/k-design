@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "design": "sh scripts/dev-design.sh",
     "dev:design": "sh scripts/dev-design.sh",
     "browse:design": "open \"http://localhost:${PORT:-3000}/poc/design\" 2>/dev/null || xdg-open \"http://localhost:${PORT:-3000}/poc/design\" 2>/dev/null || node -e \"console.log('열기: http://localhost:'+(process.env.PORT||3000)+'/poc/design')\"",
     "build": "next build",
